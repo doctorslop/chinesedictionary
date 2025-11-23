@@ -1,0 +1,23 @@
+{
+  "name": "Chinese Dictionary",
+  "short_name": "汉语词典",
+  "description": "Fast, offline-capable Chinese-English dictionary with 123,596+ entries from CC-CEDICT",
+  "start_url": "./index.php",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%232563eb'/%3E%3Ctext x='256' y='370' text-anchor='middle' font-size='300' fill='white' font-family='sans-serif'%3E字%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "reference"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "./",
+  "screenshots": []
+}
