@@ -476,6 +476,7 @@ body.light .footer { color: #64748b;}
       <input type="text" id="search" aria-label="Search field" placeholder="Type Chinese, Pinyin, or English..." disabled autocomplete="off">
       <button type="button" class="btn btn-primary" id="clearBtn" title="Clear search">Clear</button>
       <button type="button" class="btn btn-secondary" id="pasteBtn" title="Paste">Paste</button>
+      <button type="button" class="btn btn-secondary" id="speakQueryBtn" title="Pronounce search query" style="display:none;">🔊</button>
       <button type="button" class="btn btn-secondary" id="voiceBtn" title="Voice input (Chinese or English)" style="display:none;">🎤</button>
     </form>
     <div id="status" class="status loading" aria-live="polite">Loading dictionary database...</div>
@@ -498,7 +499,7 @@ body.light .footer { color: #64748b;}
     </div>
   </div>
   <div class="footer">
-    <span>v 0.1</span>
+    <span>v 0.2.1</span>
   </div>
 </div>
 <!-- Settings Modal -->
@@ -907,12 +908,9 @@ if (useWebWorker && typeof Worker !== 'undefined') {
 function parseEntry(entry) {
   const traditional = entry.traditional || '';
   const simplified = entry.simplified || '';
-  // --- Use entry.pinyin if available, fallback to parsing from traditional ---
-  let pinyin = (entry.pinyin || '').trim();
-  if (!pinyin) {
-    const pinyinMatch = traditional.match(/\[(.*?)\]/);
-    pinyin = pinyinMatch ? pinyinMatch[1] : '';
-  }
+  // Always parse from traditional field which contains: "trad simp [pinyin] /english/"
+  const pinyinMatch = traditional.match(/\[(.*?)\]/);
+  const pinyin = pinyinMatch ? pinyinMatch[1] : '';
   const englishMatch = traditional.match(/\/(.*?)\/$/);
   const englishDef = englishMatch ? englishMatch[1] : '';
   const englishArray = englishDef ? englishDef.split(/[;\/]/).map(e => e.trim()).filter(e=>e).slice(0,5) : [];
@@ -1084,11 +1082,16 @@ function detectInputType(text) {
   const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf]/;
   if (chineseRegex.test(text)) return 'chinese';
   const cleanText = text.toLowerCase().trim();
-  const pinyinRegex = /^[a-z]+[0-5]?(\s+[a-z]+[0-5]?)*$/;
+  const pinyinRegex = /^[a-z]+[0-5]?(\s*[a-z]+[0-5]?)*$/;
   const commonEnglish = ['a','i','me','you','he','she','it','we','they','can','will','would','should'];
   if (pinyinRegex.test(cleanText) && !commonEnglish.includes(cleanText)) {
     if (/[0-5]/.test(cleanText)) return 'pinyin';
-    const syllables = cleanText.split(/\s+/);
+    // Try to split into syllables if no spaces
+    let syllables = cleanText.split(/\s+/);
+    if (syllables.length === 1 && !cleanText.includes(' ')) {
+      const split = splitPinyinIntoSyllables(cleanText);
+      if (split) syllables = split.split(/\s+/);
+    }
     const pinyinPatterns = /^(zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?[aeiouü]+n?g?$/;
     const likelyPinyin = syllables.every(syl => pinyinPatterns.test(syl));
     return likelyPinyin ? 'pinyin' : 'english';
@@ -1237,6 +1240,7 @@ function renderCards(segments, query='') {
     return `
       <div class="word-card" tabindex="0" aria-label="${escapeHTML(entry.simplified)}" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">
         <div class="actions">
+          <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
           <button class="copy-btn" title="Copy" aria-label="Copy" data-copy="${escapeHTML(defText)}">📋</button>
           <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
           ${enableFavorites?`<button class="fav-btn" title="${isFav?'Remove from':'Add to'} favorites" aria-label="Favorite" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">${isFav?'★':'☆'}</button>`:''}
@@ -1266,7 +1270,10 @@ function renderTable(segments, query='') {
           <td class="chinese-cell">${highlight(entry.simplified,query)}</td>
           <td class="pinyin-cell">${colorizePinyin(entry.pinyin,query)}</td>
           <td class="english-cell">${highlight(entry.english.join('; '),query)}</td>
-          <td><button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button></td>
+          <td>
+            <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
+            <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+          </td>
         </tr>
       `;
     }).join('')}</tbody>
@@ -1286,6 +1293,7 @@ function renderList(segments, query='') {
       <span class="chinese">${highlight(entry.simplified,query)}</span>
       <span class="pinyin">${colorizePinyin(entry.pinyin,query)}</span>
       <span class="english">${highlight(entry.english.join('; '),query)}</span>
+      <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
       <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
     </div>
   `;
@@ -1416,13 +1424,73 @@ function performSearchMainThread(query) {
 // EVENT HANDLERS
 // =============================================================================
 
+// =============================================================================
+// TEXT-TO-SPEECH FUNCTIONALITY
+// =============================================================================
+
+/**
+ * Speak Chinese text using Web Speech API
+ * @param {string} text - Chinese text to pronounce
+ */
+function speakChinese(text) {
+  if (!text) return;
+
+  // Check if speech synthesis is available
+  if (!('speechSynthesis' in window)) {
+    alert('Sorry, your browser does not support text-to-speech.');
+    return;
+  }
+
+  // Cancel any ongoing speech
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  // Set language to Chinese (Mandarin)
+  utterance.lang = 'zh-CN';
+
+  // Set voice properties
+  utterance.rate = 0.9; // Slightly slower for clarity
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  // Try to find a Chinese voice
+  const voices = window.speechSynthesis.getVoices();
+  const chineseVoice = voices.find(voice =>
+    voice.lang.startsWith('zh') || voice.lang.startsWith('cmn')
+  );
+
+  if (chineseVoice) {
+    utterance.voice = chineseVoice;
+  }
+
+  // Error handling
+  utterance.onerror = function(event) {
+    console.error('Speech synthesis error:', event);
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+// Load voices when they become available (needed for some browsers)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = function() {
+    window.speechSynthesis.getVoices();
+  };
+}
+
 /**
  * Event delegation for dynamically created buttons
  * Using data attributes instead of inline onclick handlers (XSS safe)
  */
 document.addEventListener('click', function(e) {
+  // Handle speak buttons
+  if (e.target.classList.contains('speak-btn')) {
+    const text = e.target.getAttribute('data-text');
+    if (text) speakChinese(text);
+  }
   // Handle copy buttons
-  if (e.target.classList.contains('copy-btn')) {
+  else if (e.target.classList.contains('copy-btn')) {
     const text = e.target.getAttribute('data-copy');
     if (text) copyToClipboard(text);
   }
@@ -1461,6 +1529,18 @@ $('#pasteBtn').addEventListener('click', async () => {
     performSearch();
   }
   searchInput.focus();
+});
+
+// Speak query button - shows when there's Chinese text in search
+const speakQueryBtn = $('#speakQueryBtn');
+searchInput.addEventListener('input', () => {
+  const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/.test(searchInput.value);
+  speakQueryBtn.style.display = hasChinese ? 'inline-block' : 'none';
+});
+
+speakQueryBtn.addEventListener('click', () => {
+  const query = searchInput.value.trim();
+  if (query) speakChinese(query);
 });
 
 // =============================================================================
