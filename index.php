@@ -70,7 +70,7 @@ a { color: var(--primary); text-decoration: none;}
   font-weight: 500;
   letter-spacing: -0.01em;
 }
-#settingsBtn, #toggleTheme {
+#settingsBtn, #toggleTheme, #helpBtn {
   background: none;
   border: none;
   font-size: 1.22em;
@@ -85,9 +85,10 @@ a { color: var(--primary); text-decoration: none;}
   font-family: var(--font);
 }
 #settingsBtn { right: 0; }
+#helpBtn { right: 40px; }
 #toggleTheme { left: 0; }
-#settingsBtn:focus, #toggleTheme:focus { outline: 2px solid var(--focus); background: var(--card-bg);}
-#toggleTheme:hover, #settingsBtn:hover { color: var(--primary); background: var(--card-bg);}
+#settingsBtn:focus, #toggleTheme:focus, #helpBtn:focus { outline: 2px solid var(--focus); background: var(--card-bg);}
+#toggleTheme:hover, #settingsBtn:hover, #helpBtn:hover { color: var(--primary); background: var(--card-bg);}
 .search-box {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -381,7 +382,7 @@ body.light .list-entry .english { color: #1e293b;}
   margin-bottom: 6px;
   opacity: 0.45;
 }
-#settingsModal {
+#settingsModal, #helpModal {
   display: none;
   position: fixed;
   z-index: 99;
@@ -390,26 +391,42 @@ body.light .list-entry .english { color: #1e293b;}
   background: var(--card-bg);
   color: var(--text);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
   min-width: 180px;
-  padding: 10px 6px;
+  max-width: 500px;
+  padding: 15px 12px;
   font-family: var(--font);
   font-size: 1em;
   font-weight: 500;
 }
-body.light #settingsModal { background: #fff; color: #1e293b;}
-#settingsModal h2 { font-size: 1.05em; margin-bottom: 8px; font-weight: 700;}
-#settingsModal label { display: block; margin-bottom: 5px;}
-#settingsModal .close-btn {
+body.light #settingsModal, body.light #helpModal { background: #fff; color: #1e293b;}
+#settingsModal h2, #helpModal h2 { font-size: 1.3em; margin-bottom: 12px; font-weight: 700;}
+#helpModal h3 { font-size: 1.1em; color: var(--primary); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px;}
+#settingsModal label { display: block; margin-bottom: 8px;}
+#settingsModal .close-btn, #helpModal .close-btn {
   float: right;
   background: none;
   border: none;
-  font-size: 1.08em;
+  font-size: 1.3em;
   cursor: pointer;
   color: var(--muted);
   font-family: var(--font);
   font-weight: 600;
+  padding: 0 5px;
 }
+#helpModal kbd {
+  background: var(--background);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  font-family: monospace;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+#helpModal table { border-collapse: collapse; }
+#helpModal table td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
+#helpModal table td:first-child { font-weight: 600; }
+#helpModal a { color: var(--primary); text-decoration: underline; }
 .footer {
   text-align: center;
   margin-top: 11px;
@@ -437,6 +454,7 @@ body.light .footer { color: #64748b;}
 <div class="container" role="main">
   <div class="header">
     <button id="toggleTheme" aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
+    <button id="helpBtn" aria-label="Help" title="Help & Keyboard Shortcuts">❓</button>
     <button id="settingsBtn" aria-label="Settings" title="Settings">⚙️</button>
     <h1 tabindex="0">Chinese Dictionary</h1>
     <p>Instant word segmentation, pinyin, translation, and more</p>
@@ -488,8 +506,70 @@ body.light .footer { color: #64748b;}
     </select>
   </label>
 </div>
+
+<!-- Help Modal -->
+<div id="helpModal" aria-modal="true" role="dialog" style="display: none;">
+  <button class="close-btn" id="closeHelp" aria-label="Close help">&times;</button>
+  <h2>Help & Shortcuts</h2>
+  <div style="max-height: 400px; overflow-y: auto; padding: 10px;">
+    <h3 style="margin-top: 10px; font-size: 1.1em;">Keyboard Shortcuts</h3>
+    <table style="width: 100%; font-size: 0.9em; margin: 10px 0;">
+      <tr><td><kbd>Ctrl+L</kbd></td><td>Clear search & focus</td></tr>
+      <tr><td><kbd>Ctrl+D</kbd></td><td>Toggle theme</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close modals</td></tr>
+    </table>
+
+    <h3 style="margin-top: 15px; font-size: 1.1em;">Search Tips</h3>
+    <ul style="font-size: 0.9em; line-height: 1.6; padding-left: 20px;">
+      <li><strong>Chinese:</strong> 你好, 学习</li>
+      <li><strong>Pinyin:</strong> nihao, ni3hao3</li>
+      <li><strong>English:</strong> hello, study</li>
+      <li><strong>Sentences:</strong> Auto-segments long text</li>
+    </ul>
+
+    <h3 style="margin-top: 15px; font-size: 1.1em;">Features</h3>
+    <ul style="font-size: 0.9em; line-height: 1.6; padding-left: 20px;">
+      <li>📋 Copy definitions</li>
+      <li>🔗 Share links</li>
+      <li>⭐ Save favorites (optional)</li>
+      <li>📊 3 view modes: Table, Cards, List</li>
+      <li>🌓 Dark/Light theme</li>
+      <li>🔤 Adjustable font size</li>
+    </ul>
+
+    <h3 style="margin-top: 15px; font-size: 1.1em;">About</h3>
+    <p style="font-size: 0.85em; line-height: 1.5;">
+      Dictionary data: <a href="https://www.mdbg.net/chinese/dictionary?page=cc-cedict" target="_blank" rel="noopener">CC-CEDICT</a><br>
+      123,596+ entries | Client-side processing<br>
+      Licensed: CC BY-SA 4.0
+    </p>
+  </div>
+</div>
 <script>
-// --- Pinyin syllable splitter ---
+/**
+ * Chinese Dictionary - Client-Side Search Application
+ *
+ * Features:
+ * - Search by Chinese characters, Pinyin, or English
+ * - Automatic sentence segmentation
+ * - Multiple view modes (table, cards, list)
+ * - Dark/light themes
+ * - URL parameter handling and browser history
+ *
+ * Data: 123,596+ entries from CC-CEDICT
+ * License: CC BY-SA 4.0
+ */
+
+// =============================================================================
+// PINYIN PROCESSING
+// =============================================================================
+
+/**
+ * Splits pinyin text into syllables
+ * Example: "nihao" -> "ni hao"
+ * @param {string} input - Pinyin text without spaces
+ * @returns {string|null} - Space-separated syllables or null if splitting fails
+ */
 function splitPinyinIntoSyllables(input) {
   const syllables = [
     "a","ai","an","ang","ao","ba","bai","ban","bang","bao","bei","ben","beng","bi","bian","biao","bie","bin","bing","bo",
@@ -521,7 +601,7 @@ function splitPinyinIntoSyllables(input) {
   while (i < inputLower.length) {
     let found = false;
     for (let len = Math.min(5, inputLower.length - i); len >= 1; len--) {
-      let substr = inputLower.substr(i, len);
+      let substr = inputLower.slice(i, i + len);
       if (syllables.includes(substr)) {
         result.push(substr);
         i += len;
@@ -536,52 +616,39 @@ function splitPinyinIntoSyllables(input) {
   return result.join(' ');
 }
 
-// --- Add this helper function ---
-function generatePinyinToneCombos(syllables) {
-  // Given ['ni','hao'] returns all ['ni1 hao1', 'ni1 hao2', ... 'ni4 hao4']
-  const tones = [1,2,3,4];
-  let combos = [''];
-  for (const syl of syllables) {
-    let next = [];
-    for (const combo of combos) {
-      for (const t of tones) {
-        next.push((combo ? combo + ' ' : '') + syl + t);
-      }
-    }
-    combos = next;
-  }
-  return combos;
-}
-
-// --- Replace your searchPinyin function with this ---
+/**
+ * Search dictionary entries by Pinyin
+ * Handles: with/without tones, with/without spaces
+ * Optimized to avoid exponential tone combinations
+ * @param {string} query - Pinyin search query
+ * @returns {Array} - Matching dictionary entries (max 100)
+ */
 function searchPinyin(query) {
   let lower = query.toLowerCase().trim();
   let splitAttempt = null;
   let split = lower;
+
+  // Try to split pinyin into syllables if not already spaced
   if (!lower.includes(' ')) {
     splitAttempt = splitPinyinIntoSyllables(lower);
     if (splitAttempt) split = splitAttempt;
   }
-  // Prepare all variants for searching
+
+  // Prepare search variants (with/without spaces, with/without tones)
   let searchTerms = [];
-  if (lower) searchTerms.push(lower);             // "nihao"
-  if (split && split !== lower) searchTerms.push(split); // "ni hao"
-  // Also add all forms with and without spaces
+  if (lower) searchTerms.push(lower);
+  if (split && split !== lower) searchTerms.push(split);
+
+  // Generate variants with and without spaces
   let variants = [];
   for (const term of searchTerms) {
-    variants.push(term.replace(/\s+/g, '')); // "nihao"
-    variants.push(term.replace(/\s+/g, ' ')); // "ni hao"
+    variants.push(term.replace(/\s+/g, '')); // "nihao" or "ni3hao3"
+    variants.push(term.replace(/\s+/g, ' ')); // "ni hao" or "ni3 hao3"
   }
-  // Remove duplicates
   variants = Array.from(new Set(variants));
 
-  // --- NEW: If input has no tones, generate all possible tone combos ---
-  let combos = [];
-  if (variants.length && !/\d/.test(variants[0])) {
-    // Only if no tone numbers in input
-    const syls = variants[0].split(/\s+/);
-    combos = generatePinyinToneCombos(syls);
-  }
+  // Check if query has tone numbers
+  const hasTones = /\d/.test(lower);
 
   const results = [];
   dictionary.forEach(entry => {
@@ -590,30 +657,26 @@ function searchPinyin(query) {
     const entryPinyinNoTones = entry.pinyinSearchable.trim();
     const entryPinyinWithTonesNoSpaces = entryPinyinWithTones.replace(/\s+/g, '');
     const entryPinyinNoTonesNoSpaces = entryPinyinNoTones.replace(/\s+/g, '');
-    // Match all variants
+
+    // Match variants against dictionary entries
     let matched = false;
     for (const term of variants) {
-      if (
-        entryPinyinWithTones === term ||
-        entryPinyinNoTones === term ||
-        entryPinyinWithTonesNoSpaces === term.replace(/\s+/g, '') ||
-        entryPinyinNoTonesNoSpaces === term.replace(/\s+/g, '') ||
-        entryPinyinWithTones.includes(term) ||
-        entryPinyinNoTones.includes(term) ||
-        entryPinyinWithTonesNoSpaces.includes(term.replace(/\s+/g, '')) ||
-        entryPinyinNoTonesNoSpaces.includes(term.replace(/\s+/g, ''))
-      ) {
-        matched = true;
-        break;
-      }
-    }
-    // Try all tone combos if not matched
-    if (!matched && combos.length) {
-      for (const combo of combos) {
-        if (
-          entryPinyinWithTones === combo ||
-          entryPinyinWithTones.replace(/\s+/g, '') === combo.replace(/\s+/g, '')
-        ) {
+      const termNoSpaces = term.replace(/\s+/g, '');
+
+      // If query has tones, match with tones; otherwise match without tones
+      if (hasTones) {
+        if (entryPinyinWithTones === term ||
+            entryPinyinWithTonesNoSpaces === termNoSpaces ||
+            entryPinyinWithTones.includes(term) ||
+            entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+          matched = true;
+          break;
+        }
+      } else {
+        if (entryPinyinNoTones === term ||
+            entryPinyinNoTonesNoSpaces === termNoSpaces ||
+            entryPinyinNoTones.includes(term) ||
+            entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
           matched = true;
           break;
         }
@@ -621,10 +684,20 @@ function searchPinyin(query) {
     }
     if (matched) results.push(entry);
   });
-  return results.sort((a,b) => a.simplified.length-b.simplified.length).slice(0,100);
+
+  // Sort by length and limit results
+  return results.sort((a,b) => a.simplified.length - b.simplified.length).slice(0, 100);
 }
 
-// Add this helper function before renderCards/renderTable/renderList
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+/**
+ * Generate shareable URL for a dictionary entry
+ * @param {Object} entry - Dictionary entry
+ * @returns {string} - Full URL with query parameter
+ */
 function getShareLink(entry) {
   // Prefer simplified, fallback to pinyin, fallback to English
   let q = entry.simplified || entry.pinyin || (entry.english && entry.english[0]) || '';
@@ -632,17 +705,35 @@ function getShareLink(entry) {
   return `${location.origin}${location.pathname}?q=${q}`;
 }
 
-let dictionary = [];
-let currentView = 'table';
+// =============================================================================
+// GLOBAL STATE & CONSTANTS
+// =============================================================================
+
+let dictionary = [];                    // Main dictionary array (loaded from cedict.json)
+let currentView = 'table';              // Current display mode: 'table', 'cards', or 'list'
 let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 let enableFavorites = localStorage.getItem('enableFavorites') === 'true';
 let fontSize = localStorage.getItem('fontSize') || '15';
 
+// DOM query shortcuts
 const $ = sel => document.querySelector(sel);
 const $$ = sel => document.querySelectorAll(sel);
+
+// Security: Escape HTML to prevent XSS attacks
 const escapeHTML = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// Copy text to clipboard (requires HTTPS or localhost)
 const copyToClipboard = text => navigator.clipboard?.writeText(text);
 
+// =============================================================================
+// DICTIONARY DATA PROCESSING
+// =============================================================================
+
+/**
+ * Parse a dictionary entry from CC-CEDICT format
+ * @param {Object} entry - Raw entry from cedict.json
+ * @returns {Object} - Parsed entry with searchable fields
+ */
 function parseEntry(entry) {
   const traditional = entry.traditional || '';
   const simplified = entry.simplified || '';
@@ -672,6 +763,10 @@ function parseEntry(entry) {
   };
 }
 
+/**
+ * Load and process dictionary data from cedict.json
+ * Uses chunked processing with requestIdleCallback to avoid blocking UI
+ */
 function loadDictionary() {
   fetch('cedict.json')
     .then(res => res.json())
@@ -706,6 +801,13 @@ function loadDictionary() {
 }
 loadDictionary();
 
+/**
+ * Colorize pinyin syllables by tone
+ * Tone 1=red, 2=orange, 3=green, 4=blue, 5=purple
+ * @param {string} pinyin - Pinyin text with tone numbers
+ * @param {string} highlight - Optional text to highlight
+ * @returns {string} - HTML with styled spans
+ */
 function colorizePinyin(pinyin, highlight='') {
   if (!pinyin) return '<span style="color:#aaa;">—</span>';
   return pinyin.split(' ').map(syl => {
@@ -716,6 +818,16 @@ function colorizePinyin(pinyin, highlight='') {
   }).join(' ');
 }
 
+// =============================================================================
+// SEARCH ALGORITHMS
+// =============================================================================
+
+/**
+ * Detect input type: chinese, pinyin, or english
+ * Uses heuristics to distinguish between Pinyin and English
+ * @param {string} text - User input
+ * @returns {string} - 'chinese', 'pinyin', or 'english'
+ */
 function detectInputType(text) {
   const chineseRegex = /[\u4e00-\u9fff\u3400-\u4dbf]/;
   if (chineseRegex.test(text)) return 'chinese';
@@ -732,6 +844,12 @@ function detectInputType(text) {
   return 'english';
 }
 
+/**
+ * Search dictionary by Chinese characters
+ * Prioritizes exact matches, then substring matches
+ * @param {string} query - Chinese text
+ * @returns {Array} - Matching entries (max 100)
+ */
 function searchChinese(query) {
   const results = [];
   const cleanQuery = query.replace(/[，。！？；：、\s]/g,'');
@@ -743,6 +861,12 @@ function searchChinese(query) {
   });
   return results.sort((a,b) => (a.exactMatch&&!b.exactMatch?-1:!a.exactMatch&&b.exactMatch?1:a.simplified.length-b.simplified.length)).slice(0,100).map(r=>{delete r.exactMatch;return r;});
 }
+/**
+ * Search dictionary by English keywords
+ * Uses relevance scoring to rank results
+ * @param {string} query - English text
+ * @returns {Array} - Matching entries sorted by relevance (max 100)
+ */
 function searchEnglish(query) {
   const results = [], searchTerms = query.toLowerCase().trim().split(/\s+/);
   dictionary.forEach(entry => {
@@ -755,6 +879,12 @@ function searchEnglish(query) {
   });
   return results.sort((a,b)=>b.relevance-a.relevance).slice(0,100).map(r=>{delete r.relevance;return r;});
 }
+/**
+ * Calculate relevance score for English search results
+ * @param {string} text - English definition text
+ * @param {Array} searchTerms - Array of search keywords
+ * @returns {number} - Relevance score (higher is better)
+ */
 function calculateRelevance(text,searchTerms) {
   let score=0;
   searchTerms.forEach(term=>{
@@ -765,6 +895,13 @@ function calculateRelevance(text,searchTerms) {
   score-=text.length*0.01;
   return score;
 }
+/**
+ * Segment Chinese sentence into words using greedy longest-match algorithm
+ * Note: This is a simple greedy algorithm. For better results, consider
+ * implementing Viterbi algorithm or dynamic programming approach.
+ * @param {string} sentence - Chinese sentence
+ * @returns {Array} - Array of dictionary entries representing words
+ */
 function segmentSentence(sentence) {
   const results = [];
   let i = 0;
@@ -772,7 +909,7 @@ function segmentSentence(sentence) {
   while (i < cleanSentence.length) {
     let match = null, maxLen = 0;
     for (let len = Math.min(10, cleanSentence.length - i); len >= 1; len--) {
-      const slice = cleanSentence.substr(i, len);
+      const slice = cleanSentence.slice(i, i + len);
       const entry = dictionary.find(e =>
         e.simplified === slice || e.traditional === slice
       );
@@ -802,17 +939,29 @@ function segmentSentence(sentence) {
     !(entry.english && entry.english[0] === "(not found)")
   );
 }
+// =============================================================================
+// RENDERING FUNCTIONS
+// =============================================================================
+
+/**
+ * Render results as card grid
+ * Uses data attributes for event handling (XSS safe)
+ * @param {Array} segments - Dictionary entries to display
+ * @param {string} query - Search query for highlighting
+ * @returns {string} - HTML string
+ */
 function renderCards(segments, query='') {
   return `<div class="cards-view">${segments.map(entry=>{
     const isFav = favorites.some(f=>f.simplified===entry.simplified&&f.traditional===entry.traditional);
-    const defText = `${entry.simplified} (${entry.pinyin}) - ${entry.english.join('; ')}`.replace(/'/g, "\\'");
+    const defText = `${entry.simplified} (${entry.pinyin}) - ${entry.english.join('; ')}`;
     const shareUrl = getShareLink(entry);
+    // Use data attributes instead of inline event handlers for better security
     return `
       <div class="word-card" tabindex="0" aria-label="${escapeHTML(entry.simplified)}" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">
         <div class="actions">
-          <button title="Copy" aria-label="Copy" onclick="copyToClipboard('${defText}')">📋</button>
-          <button title="Copy share link" aria-label="Share link" onclick="copyToClipboard('${shareUrl}')">🔗</button>
-          ${enableFavorites?`<button title="${isFav?'Remove from':'Add to'} favorites" aria-label="Favorite" onclick="toggleFavorite('${escapeHTML(entry.simplified)}','${escapeHTML(entry.traditional)}')">${isFav?'★':'☆'}</button>`:''}
+          <button class="copy-btn" title="Copy" aria-label="Copy" data-copy="${escapeHTML(defText)}">📋</button>
+          <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+          ${enableFavorites?`<button class="fav-btn" title="${isFav?'Remove from':'Add to'} favorites" aria-label="Favorite" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">${isFav?'★':'☆'}</button>`:''}
         </div>
         <div class="chinese-text">
           <span>${highlight(entry.simplified,query)}</span>
@@ -823,6 +972,12 @@ function renderCards(segments, query='') {
     `;
   }).join('')}</div>`;
 }
+/**
+ * Render results as table
+ * @param {Array} segments - Dictionary entries to display
+ * @param {string} query - Search query for highlighting
+ * @returns {string} - HTML string
+ */
 function renderTable(segments, query='') {
   return `<table class="table-view">
     <thead><tr><th>Chinese</th><th>Pinyin</th><th>English</th><th></th></tr></thead>
@@ -833,12 +988,18 @@ function renderTable(segments, query='') {
           <td class="chinese-cell">${highlight(entry.simplified,query)}</td>
           <td class="pinyin-cell">${colorizePinyin(entry.pinyin,query)}</td>
           <td class="english-cell">${highlight(entry.english.join('; '),query)}</td>
-          <td><button title="Copy share link" aria-label="Share link" onclick="copyToClipboard('${shareUrl}')">🔗</button></td>
+          <td><button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button></td>
         </tr>
       `;
     }).join('')}</tbody>
   </table>`;
 }
+/**
+ * Render results as compact list
+ * @param {Array} segments - Dictionary entries to display
+ * @param {string} query - Search query for highlighting
+ * @returns {string} - HTML string
+ */
 function renderList(segments, query='') {
   return `<div class="list-view">${segments.map(entry => {
     const shareUrl = getShareLink(entry);
@@ -847,19 +1008,34 @@ function renderList(segments, query='') {
       <span class="chinese">${highlight(entry.simplified,query)}</span>
       <span class="pinyin">${colorizePinyin(entry.pinyin,query)}</span>
       <span class="english">${highlight(entry.english.join('; '),query)}</span>
-      <button title="Copy share link" aria-label="Share link" onclick="copyToClipboard('${shareUrl}')">🔗</button>
+      <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
     </div>
   `;
   }).join('')}</div>`;
 }
+/**
+ * Highlight search query in text
+ * @param {string} text - Text to highlight
+ * @param {string} query - Query to highlight
+ * @returns {string} - HTML with <mark> tags
+ */
 function highlight(text, query) {
   if (!query || !text) return escapeHTML(text||'');
   let safeQuery = escapeHTML(query);
   return text.replace(new RegExp("("+safeQuery+")", "gi"), '<mark>$1</mark>');
 }
+// =============================================================================
+// MAIN SEARCH LOGIC
+// =============================================================================
+
 const searchInput = $('#search');
 const resultsDiv = $('#results');
 const resultsHeader = $('.results-header');
+
+/**
+ * Main search function - detects input type and routes to appropriate search
+ * Updates UI with results and URL parameters
+ */
 function performSearch() {
   const query = searchInput.value.trim();
   if (!query) {
@@ -906,14 +1082,44 @@ function performSearch() {
   if (currentView==='cards') resultsDiv.innerHTML = renderCards(segments,query);
   else if (currentView==='list') resultsDiv.innerHTML = renderList(segments,query);
   else resultsDiv.innerHTML = renderTable(segments,query);
+
+  // Update URL with current search (use replaceState to avoid cluttering history)
+  if (typeof updateURL === 'function') {
+    updateURL(query, true);
+  }
 }
-window.toggleFavorite = function(simp,trad) {
-  const idx = favorites.findIndex(f=>f.simplified===simp&&f.traditional===trad);
-  if(idx>=0) favorites.splice(idx,1);
-  else favorites.push({simplified:simp,traditional:trad});
-  localStorage.setItem('favorites',JSON.stringify(favorites));
-  performSearch();
-}
+// =============================================================================
+// EVENT HANDLERS
+// =============================================================================
+
+/**
+ * Event delegation for dynamically created buttons
+ * Using data attributes instead of inline onclick handlers (XSS safe)
+ */
+document.addEventListener('click', function(e) {
+  // Handle copy buttons
+  if (e.target.classList.contains('copy-btn')) {
+    const text = e.target.getAttribute('data-copy');
+    if (text) copyToClipboard(text);
+  }
+  // Handle share buttons
+  else if (e.target.classList.contains('share-btn')) {
+    const url = e.target.getAttribute('data-share');
+    if (url) copyToClipboard(url);
+  }
+  // Handle favorite buttons
+  else if (e.target.classList.contains('fav-btn')) {
+    const simp = e.target.getAttribute('data-simp');
+    const trad = e.target.getAttribute('data-trad');
+    if (simp && trad) {
+      const idx = favorites.findIndex(f=>f.simplified===simp&&f.traditional===trad);
+      if(idx>=0) favorites.splice(idx,1);
+      else favorites.push({simplified:simp,traditional:trad});
+      localStorage.setItem('favorites',JSON.stringify(favorites));
+      performSearch();
+    }
+  }
+});
 let searchTimeout;
 searchInput.addEventListener('input', () => {
   clearTimeout(searchTimeout);
@@ -940,6 +1146,10 @@ $$('.view-btn').forEach(btn => {
     e.target.classList.add('active');
     currentView = view;
     performSearch();
+    // Update URL when view changes
+    if (typeof updateURL === 'function') {
+      updateURL(searchInput.value, true);
+    }
   });
 });
 const toggleThemeBtn = $('#toggleTheme');
@@ -949,6 +1159,10 @@ toggleThemeBtn.addEventListener('click', () => {
   const isDark = document.body.classList.contains('dark');
   toggleThemeBtn.textContent = isDark ? "☀️" : "🌙";
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  // Update URL when theme changes
+  if (typeof updateURL === 'function') {
+    updateURL(searchInput.value, true);
+  }
 });
 const savedTheme = localStorage.getItem('theme');
 if(savedTheme==='light') {
@@ -963,13 +1177,22 @@ if(savedTheme==='light') {
 document.addEventListener('keydown', e => {
   if(e.ctrlKey && e.key==='l'){e.preventDefault();searchInput.value='';performSearch();searchInput.focus();}
   if(e.ctrlKey && e.key==='d'){e.preventDefault();toggleThemeBtn.click();}
-  if(e.key==='Escape'){if($('#settingsModal').style.display==='block')closeSettings();}
+  if(e.key==='Escape'){
+    if($('#settingsModal').style.display==='block') closeSettings();
+    if($('#helpModal').style.display==='block') closeHelp();
+  }
 });
 $('#settingsBtn').addEventListener('click', () => {
   $('#settingsModal').style.display = 'block';
 });
 $('#closeSettings').addEventListener('click', closeSettings);
 function closeSettings(){ $('#settingsModal').style.display = 'none'; }
+
+$('#helpBtn').addEventListener('click', () => {
+  $('#helpModal').style.display = 'block';
+});
+$('#closeHelp').addEventListener('click', closeHelp);
+function closeHelp(){ $('#helpModal').style.display = 'none'; }
 $('#toggleFavorites').checked = enableFavorites;
 $('#toggleFavorites').addEventListener('change', e => {
   enableFavorites = e.target.checked;
@@ -983,7 +1206,82 @@ $('#fontSize').addEventListener('change', e => {
   localStorage.setItem('fontSize',fontSize);
 });
 document.body.style.fontSize = fontSize+'px';
-window.addEventListener('DOMContentLoaded', () => { if (searchInput) searchInput.focus(); });
+
+// =============================================================================
+// URL PARAMETER HANDLING & BROWSER HISTORY
+// =============================================================================
+
+/**
+ * Parse URL query parameters
+ * @returns {Object} - Object with q, view, theme parameters
+ */
+function getURLParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    q: params.get('q') || '',
+    view: params.get('view') || null,
+    theme: params.get('theme') || null
+  };
+}
+
+/**
+ * Update URL with current search state
+ * @param {string} query - Search query
+ * @param {boolean} replaceState - Use replaceState instead of pushState
+ */
+function updateURL(query, replaceState = false) {
+  const url = new URL(window.location);
+  if (query && query.trim()) {
+    url.searchParams.set('q', query);
+  } else {
+    url.searchParams.delete('q');
+  }
+  url.searchParams.set('view', currentView);
+  url.searchParams.set('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+
+  if (replaceState) {
+    window.history.replaceState({}, '', url);
+  } else {
+    window.history.pushState({}, '', url);
+  }
+}
+
+// Load parameters from URL on page load
+window.addEventListener('DOMContentLoaded', () => {
+  const params = getURLParams();
+
+  // Apply theme from URL
+  if (params.theme === 'light' && document.body.classList.contains('dark')) {
+    toggleThemeBtn.click();
+  } else if (params.theme === 'dark' && document.body.classList.contains('light')) {
+    toggleThemeBtn.click();
+  }
+
+  // Apply view mode from URL
+  if (params.view && ['table', 'cards', 'list'].includes(params.view)) {
+    currentView = params.view;
+    $$('.view-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === params.view);
+    });
+  }
+
+  // Load query from URL
+  if (params.q && searchInput) {
+    searchInput.value = params.q;
+    performSearch();
+  }
+
+  if (searchInput) searchInput.focus();
+});
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', () => {
+  const params = getURLParams();
+  if (searchInput) {
+    searchInput.value = params.q;
+    performSearch();
+  }
+});
 </script>
 </body>
 </html>
