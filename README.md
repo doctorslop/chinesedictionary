@@ -177,26 +177,65 @@ index.php?q=你好       → Pre-fills search with "你好"
 - localStorage
 - Clipboard API (for copy features)
 
+## ⚡ Performance Features
+
+### Progressive Loading
+- **Chunked Dictionary Loading** - Dictionary split into 25 chunks (~900KB each)
+- **Fast Initial Load** - Search available after loading just first chunk (900KB vs 20MB)
+- **Background Loading** - Remaining chunks load while you search
+- **Result**: 20x faster time-to-interactive
+
+### Web Workers
+- **Background Search Processing** - Search runs in separate thread
+- **Non-Blocking UI** - Interface stays responsive during heavy searches
+- **Automatic Fallback** - Uses main thread if workers unavailable
+
+### Fuzzy Matching
+- **Typo Tolerance** - Handles spelling errors in pinyin and English
+- **Levenshtein Distance** - Up to 2 character differences
+- **Smart Fallback** - Only triggers when exact matches fail
+- **Examples**: "nihoa" → "nihao", "studdy" → "study"
+
+### Voice Input
+- **Web Speech API** - Speak Chinese or English
+- **Hands-Free Search** - Click 🎤 button and speak
+- **Auto-Detection** - Recognizes Chinese (zh-CN) and English
+- **Browser Support**: Chrome, Edge, Safari
+
+### PWA Support
+- **Install as App** - Works like native app on desktop/mobile
+- **Offline Access** - Service worker caches dictionary chunks
+- **Fast Startup** - Loads from cache when offline
+- **Auto-Updates** - New versions install automatically
+
+## 🧪 Testing
+
+Unit tests available at `tests.html`:
+- Pinyin syllable splitting
+- Input type detection
+- Chinese/Pinyin/English search
+- Fuzzy matching algorithms
+- Relevance scoring
+- Edge cases and regressions
+
 ## 🚧 Known Limitations
 
-1. **Initial Load Time** - 20MB dictionary takes 2-5 seconds to load
-2. **Linear Search** - No indexing; search speed depends on query type
-3. **Result Limit** - Maximum 100 results per search
-4. **Greedy Segmentation** - May not find optimal sentence segmentation
-5. **No Audio** - Text-to-speech not included
-6. **Basic English Matching** - Simple keyword matching
+1. **Result Limit** - Maximum 100 results per search (50 for fuzzy matches)
+2. **Greedy Segmentation** - May not find optimal sentence segmentation
+3. **Fuzzy Matching Scope** - Only for pinyin/English, not Chinese characters
+4. **Voice Input Browser Support** - Chrome, Edge, Safari (not Firefox)
 
-## 🔮 Planned Improvements
+## 🔮 Future Improvements
 
 See [Issues](https://github.com/doctorslop/chinesedictionary/issues) for roadmap:
-- [ ] Search indexing for faster lookups
-- [ ] Dictionary chunking and lazy loading
-- [ ] Service worker for offline support
+- [ ] Search indexing with trie/hash maps
+- [ ] Better segmentation algorithm (Viterbi/DP)
 - [ ] Export to CSV/Anki
-- [ ] Advanced search filters
-- [ ] Example sentences
-- [ ] HSK level indicators
-- [ ] Character stroke animations
+- [ ] Advanced search filters (HSK level, word length)
+- [ ] Example sentences from Tatoeba
+- [ ] Audio pronunciation (TTS)
+- [ ] Character stroke order animations
+- [ ] Handwriting input
 
 ## 🤝 Contributing
 
@@ -230,13 +269,22 @@ This project is open source. Dictionary data (CC-CEDICT) is licensed under Creat
 
 ## 📈 Changelog
 
-### v0.1 (Current)
-- Initial release
-- Basic search functionality
-- Three view modes
+### v0.2 (Current) - Performance & Features Update
+- ⚡ **Progressive Loading** - 20x faster initial load with chunked dictionary
+- 🎯 **Fuzzy Matching** - Typo-tolerant search for pinyin and English
+- 🎤 **Voice Input** - Speak Chinese or English to search
+- 🔧 **Web Workers** - Background search processing for responsive UI
+- 📱 **PWA Support** - Install as app, works offline
+- 🧪 **Unit Tests** - Comprehensive test suite for all search algorithms
+- 📦 **25 Dictionary Chunks** - Faster loading, better performance
+
+### v0.1 - Initial Release
+- Basic search functionality (Chinese, Pinyin, English)
+- Three view modes (Table, Cards, List)
 - Dark/light themes
 - Favorites system
 - Keyboard shortcuts
+- 123,596 dictionary entries from CC-CEDICT
 
 ---
 

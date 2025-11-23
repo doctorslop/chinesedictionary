@@ -5,6 +5,18 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Chinese Dictionary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="Fast, offline-capable Chinese-English dictionary with 123,596+ entries">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="汉语词典">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
@@ -464,6 +476,7 @@ body.light .footer { color: #64748b;}
       <input type="text" id="search" aria-label="Search field" placeholder="Type Chinese, Pinyin, or English..." disabled autocomplete="off">
       <button type="button" class="btn btn-primary" id="clearBtn" title="Clear search">Clear</button>
       <button type="button" class="btn btn-secondary" id="pasteBtn" title="Paste">Paste</button>
+      <button type="button" class="btn btn-secondary" id="voiceBtn" title="Voice input (Chinese or English)" style="display:none;">🎤</button>
     </form>
     <div id="status" class="status loading" aria-live="polite">Loading dictionary database...</div>
   </div>
@@ -685,6 +698,36 @@ function searchPinyin(query) {
     if (matched) results.push(entry);
   });
 
+  // If no exact matches found and query is reasonable length, try fuzzy matching
+  if (results.length === 0 && lower.length >= 3 && lower.length <= 15) {
+    const fuzzyResults = [];
+    dictionary.forEach(entry => {
+      if (!entry.pinyin) return;
+      const entryPinyin = hasTones ? entry.pinyinWithTones : entry.pinyinSearchable;
+      const entryPinyinNoSpaces = entryPinyin.replace(/\s+/g, '');
+
+      // Try fuzzy match on both spaced and non-spaced versions
+      for (const term of variants) {
+        const termNoSpaces = term.replace(/\s+/g, '');
+        if (isFuzzyMatch(term, entryPinyin, 2) ||
+            isFuzzyMatch(termNoSpaces, entryPinyinNoSpaces, 2)) {
+          const distance = Math.min(
+            levenshteinDistance(term, entryPinyin),
+            levenshteinDistance(termNoSpaces, entryPinyinNoSpaces)
+          );
+          fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+          break;
+        }
+      }
+    });
+
+    // Sort by fuzzy distance (best matches first), then by length
+    return fuzzyResults
+      .sort((a, b) => a.fuzzyDistance - b.fuzzyDistance || a.simplified.length - b.simplified.length)
+      .slice(0, 50)
+      .map(r => { delete r.fuzzyDistance; return r; });
+  }
+
   // Sort by length and limit results
   return results.sort((a,b) => a.simplified.length - b.simplified.length).slice(0, 100);
 }
@@ -706,6 +749,90 @@ function getShareLink(entry) {
 }
 
 // =============================================================================
+// FUZZY MATCHING UTILITIES
+// =============================================================================
+
+/**
+ * Calculate Levenshtein distance between two strings
+ * Used for fuzzy matching to handle typos
+ * @param {string} a - First string
+ * @param {string} b - Second string
+ * @returns {number} - Edit distance (lower = more similar)
+ */
+function levenshteinDistance(a, b) {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const matrix = [];
+
+  // Initialize matrix
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+/**
+ * Check if two strings are similar (fuzzy match)
+ * @param {string} str1 - First string
+ * @param {string} str2 - Second string
+ * @param {number} maxDistance - Maximum allowed edit distance (default: 2)
+ * @returns {boolean} - True if strings are similar enough
+ */
+function isFuzzyMatch(str1, str2, maxDistance = 2) {
+  // Quick length check: if length difference is too large, can't be a match
+  if (Math.abs(str1.length - str2.length) > maxDistance) {
+    return false;
+  }
+
+  const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+  return distance <= maxDistance;
+}
+
+/**
+ * Find fuzzy matches for a query in an array of strings
+ * @param {string} query - Search query
+ * @param {Array} candidates - Array of strings to search
+ * @param {number} maxDistance - Maximum allowed edit distance (default: 2)
+ * @returns {Array} - Array of objects with {value, distance}
+ */
+function findFuzzyMatches(query, candidates, maxDistance = 2) {
+  const matches = [];
+  const queryLower = query.toLowerCase();
+
+  for (const candidate of candidates) {
+    const candidateLower = candidate.toLowerCase();
+    const distance = levenshteinDistance(queryLower, candidateLower);
+
+    if (distance <= maxDistance) {
+      matches.push({ value: candidate, distance });
+    }
+  }
+
+  // Sort by distance (best matches first)
+  return matches.sort((a, b) => a.distance - b.distance);
+}
+
+// =============================================================================
 // GLOBAL STATE & CONSTANTS
 // =============================================================================
 
@@ -714,6 +841,7 @@ let currentView = 'table';              // Current display mode: 'table', 'cards
 let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 let enableFavorites = localStorage.getItem('enableFavorites') === 'true';
 let fontSize = localStorage.getItem('fontSize') || '15';
+let useWebWorker = localStorage.getItem('useWebWorker') !== 'false'; // Default: enabled
 
 // DOM query shortcuts
 const $ = sel => document.querySelector(sel);
@@ -724,6 +852,48 @@ const escapeHTML = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':
 
 // Copy text to clipboard (requires HTTPS or localhost)
 const copyToClipboard = text => navigator.clipboard?.writeText(text);
+
+// =============================================================================
+// WEB WORKER SETUP
+// =============================================================================
+
+let searchWorker = null;
+let workerReady = false;
+
+// Initialize Web Worker for background search processing
+if (useWebWorker && typeof Worker !== 'undefined') {
+  try {
+    searchWorker = new Worker('search-worker.js');
+
+    searchWorker.onmessage = function(e) {
+      const { type, data } = e.data;
+
+      switch (type) {
+        case 'dictionaryLoaded':
+          workerReady = true;
+          console.log('✓ Search worker ready with ' + data + ' entries');
+          break;
+
+        case 'chunkAdded':
+          console.log('✓ Worker dictionary updated: ' + data + ' total entries');
+          break;
+
+        case 'searchResults':
+          displayWorkerResults(data);
+          break;
+      }
+    };
+
+    searchWorker.onerror = function(error) {
+      console.error('Worker error:', error);
+      useWebWorker = false;
+      searchWorker = null;
+    };
+  } catch (err) {
+    console.log('Web Workers not available, using main thread');
+    useWebWorker = false;
+  }
+}
 
 // =============================================================================
 // DICTIONARY DATA PROCESSING
@@ -764,10 +934,93 @@ function parseEntry(entry) {
 }
 
 /**
- * Load and process dictionary data from cedict.json
+ * Load and process dictionary data progressively
+ * First tries to load from chunks (fast), falls back to full file (slow)
+ */
+async function loadDictionary() {
+  const statusEl = $('#status');
+
+  // Try progressive loading first
+  try {
+    const manifestRes = await fetch('dict_chunks/manifest.json');
+    if (manifestRes.ok) {
+      const manifest = await manifestRes.json();
+      await loadDictionaryChunked(manifest);
+      return;
+    }
+  } catch (err) {
+    console.log('Chunks not available, loading full dictionary...');
+  }
+
+  // Fallback to full dictionary loading
+  loadDictionaryFull();
+}
+
+/**
+ * Load dictionary in chunks for progressive enhancement
+ * Users can start searching after first chunk loads (~900KB vs 20MB)
+ */
+async function loadDictionaryChunked(manifest) {
+  const statusEl = $('#status');
+  const totalChunks = manifest.num_chunks;
+  const totalEntries = manifest.total_entries;
+  let loadedEntries = 0;
+
+  statusEl.innerHTML = `<div class="loading">Loading dictionary chunks... (0/${totalChunks})</div>`;
+
+  for (let i = 0; i < totalChunks; i++) {
+    try {
+      const chunkRes = await fetch(`dict_chunks/chunk_${i}.json`);
+      const chunk = await chunkRes.json();
+
+      // Process chunk
+      const parsedChunk = [];
+      chunk.forEach(entry => {
+        const parsed = parseEntry(entry);
+        if (parsed.simplified || parsed.traditional) {
+          dictionary.push(parsed);
+          parsedChunk.push(parsed);
+        }
+      });
+
+      // Send chunk to web worker if available
+      if (searchWorker) {
+        searchWorker.postMessage({
+          type: i === 0 ? 'loadDictionary' : 'addChunk',
+          data: i === 0 ? parsedChunk : parsedChunk
+        });
+      }
+
+      loadedEntries += chunk.length;
+
+      // Enable search after first chunk loads
+      if (i === 0) {
+        $('#search').disabled = false;
+        $('#search').placeholder = 'Type Chinese, Pinyin, or English...';
+        $('#search').focus();
+        statusEl.innerHTML = `<div class="loading">✓ Ready! Loading more entries in background... (${loadedEntries.toLocaleString()}/${totalEntries.toLocaleString()})</div>`;
+      } else {
+        statusEl.innerHTML = `<div class="loading">Loading... ${loadedEntries.toLocaleString()}/${totalEntries.toLocaleString()} entries (${((loadedEntries/totalEntries)*100).toFixed(0)}%)</div>`;
+      }
+
+      // Allow UI to breathe between chunks
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+    } catch (err) {
+      console.error(`Failed to load chunk ${i}:`, err);
+    }
+  }
+
+  // All chunks loaded
+  statusEl.style.display = 'none';
+  console.log(`✅ Loaded ${dictionary.length.toLocaleString()} dictionary entries`);
+}
+
+/**
+ * Fallback: Load full dictionary (slower initial load)
  * Uses chunked processing with requestIdleCallback to avoid blocking UI
  */
-function loadDictionary() {
+function loadDictionaryFull() {
   fetch('cedict.json')
     .then(res => res.json())
     .then(data => {
@@ -784,8 +1037,6 @@ function loadDictionary() {
           statusEl.innerHTML = `<div class="loading">Processing: ${processed.toLocaleString()} / ${data.length.toLocaleString()}</div>`;
           window.requestIdleCallback(processChunk);
         } else {
-          // Debug: log a few entries to check pinyin fields
-          // console.log(dictionary.slice(0,5));
           $('#search').disabled = false;
           statusEl.style.display = 'none';
           $('#search').placeholder = 'Type Chinese, Pinyin, or English...';
@@ -799,6 +1050,7 @@ function loadDictionary() {
       console.error("Error loading dictionary:", err);
     });
 }
+
 loadDictionary();
 
 /**
@@ -877,6 +1129,32 @@ function searchEnglish(query) {
       results.push({...entry, relevance:matchCount*10+calculateRelevance(entry.searchableEnglish,searchTerms)});
     }
   });
+
+  // If no exact matches and single term query, try fuzzy matching
+  if (results.length === 0 && searchTerms.length === 1 && searchTerms[0].length >= 4) {
+    const fuzzyResults = [];
+    const queryTerm = searchTerms[0];
+
+    dictionary.forEach(entry => {
+      if (!entry.searchableEnglish) return;
+      const englishWords = entry.searchableEnglish.split(/[\s\/;,]+/);
+
+      for (const word of englishWords) {
+        if (isFuzzyMatch(queryTerm, word, 2)) {
+          const distance = levenshteinDistance(queryTerm, word);
+          fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+          break;
+        }
+      }
+    });
+
+    // Sort by fuzzy distance, then limit results
+    return fuzzyResults
+      .sort((a, b) => a.fuzzyDistance - b.fuzzyDistance)
+      .slice(0, 50)
+      .map(r => { delete r.fuzzyDistance; return r; });
+  }
+
   return results.sort((a,b)=>b.relevance-a.relevance).slice(0,100).map(r=>{delete r.relevance;return r;});
 }
 /**
@@ -1035,6 +1313,7 @@ const resultsHeader = $('.results-header');
 /**
  * Main search function - detects input type and routes to appropriate search
  * Updates UI with results and URL parameters
+ * Uses Web Worker when available for better performance
  */
 function performSearch() {
   const query = searchInput.value.trim();
@@ -1047,6 +1326,51 @@ function performSearch() {
     resultsDiv.innerHTML = '<div class="error">Dictionary is still loading...</div>';
     return;
   }
+
+  // Use Web Worker if available for background processing
+  if (searchWorker && workerReady) {
+    searchWorker.postMessage({
+      type: 'search',
+      data: { query }
+    });
+    return;
+  }
+
+  // Fallback to main thread search
+  performSearchMainThread(query);
+}
+
+/**
+ * Display search results from Web Worker
+ */
+function displayWorkerResults(data) {
+  const { results, inputType } = data;
+  const query = searchInput.value.trim();
+
+  if (!results.length) {
+    resultsHeader.style.display='none';
+    resultsDiv.innerHTML = `<div class="empty-state"><p>No results for "${escapeHTML(query)}"</p><p style="font-size: 13px; margin-top: 6px; color: #aaa;">${inputType==='pinyin'?'Try with or without tone numbers':'Try simpler keywords or different terms'}</p></div>`;
+    return;
+  }
+
+  const searchTypeLabel = inputType==='chinese' ? ' (Chinese search)' : inputType==='pinyin' ? ' (Pinyin search)' : ' (English → Chinese)';
+
+  resultsHeader.style.display='flex';
+  $('.results-count').innerHTML = `<span id="wordCount">${results.length}</span> results${searchTypeLabel}`;
+  if (currentView==='cards') resultsDiv.innerHTML = renderCards(results,query);
+  else if (currentView==='list') resultsDiv.innerHTML = renderList(results,query);
+  else resultsDiv.innerHTML = renderTable(results,query);
+
+  // Update URL with current search
+  if (typeof updateURL === 'function') {
+    updateURL(query, true);
+  }
+}
+
+/**
+ * Fallback search on main thread (when worker not available)
+ */
+function performSearchMainThread(query) {
   const inputType = detectInputType(query);
   let segments=[],searchTypeLabel='';
   if (inputType==='chinese') {
@@ -1138,6 +1462,85 @@ $('#pasteBtn').addEventListener('click', async () => {
   }
   searchInput.focus();
 });
+
+// =============================================================================
+// VOICE INPUT SETUP
+// =============================================================================
+
+// Check if Web Speech API is available
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+  // Show voice button if API is available
+  const voiceBtn = $('#voiceBtn');
+  voiceBtn.style.display = 'inline-block';
+
+  // Initialize speech recognition
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  // Support both Chinese and English
+  recognition.lang = 'zh-CN'; // Default to Chinese, will auto-detect
+
+  // Handle recognition results
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    searchInput.value = transcript;
+    performSearch();
+    isListening = false;
+    voiceBtn.textContent = '🎤';
+    voiceBtn.style.background = '';
+  };
+
+  // Handle errors
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event.error);
+    isListening = false;
+    voiceBtn.textContent = '🎤';
+    voiceBtn.style.background = '';
+
+    if (event.error === 'no-speech') {
+      $('#status').innerHTML = '<div style="color: var(--muted); font-style: italic;">No speech detected. Please try again.</div>';
+      setTimeout(() => { $('#status').style.display = 'none'; }, 2000);
+    }
+  };
+
+  // Handle end of recognition
+  recognition.onend = () => {
+    isListening = false;
+    voiceBtn.textContent = '🎤';
+    voiceBtn.style.background = '';
+  };
+
+  // Voice button click handler
+  voiceBtn.addEventListener('click', () => {
+    if (isListening) {
+      // Stop listening
+      recognition.stop();
+      isListening = false;
+      voiceBtn.textContent = '🎤';
+      voiceBtn.style.background = '';
+    } else {
+      // Start listening
+      try {
+        recognition.start();
+        isListening = true;
+        voiceBtn.textContent = '🔴';
+        voiceBtn.style.background = 'linear-gradient(90deg, #ef4444 90%, #dc2626 100%)';
+        voiceBtn.style.color = '#fff';
+        $('#status').innerHTML = '<div style="color: var(--primary); font-style: italic;">🎤 Listening... (speak in Chinese or English)</div>';
+        $('#status').style.display = 'block';
+      } catch (error) {
+        console.error('Failed to start speech recognition:', error);
+      }
+    }
+  });
+}
+
 $$('.view-btn').forEach(btn => {
   btn.addEventListener('click', e => {
     const view = e.target.dataset.view;
@@ -1281,6 +1684,57 @@ window.addEventListener('popstate', () => {
     searchInput.value = params.q;
     performSearch();
   }
+});
+
+// =============================================================================
+// SERVICE WORKER REGISTRATION (PWA Support)
+// =============================================================================
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(registration => {
+        console.log('✓ ServiceWorker registered:', registration.scope);
+
+        // Check for updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New service worker available, show update prompt
+              console.log('New version available! Refresh to update.');
+              // You could show a toast notification here
+            }
+          });
+        });
+      })
+      .catch(error => {
+        console.log('ServiceWorker registration failed:', error);
+      });
+  });
+
+  // Handle service worker messages
+  navigator.serviceWorker.addEventListener('message', event => {
+    console.log('Message from service worker:', event.data);
+  });
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later
+  deferredPrompt = e;
+  console.log('PWA install prompt available');
+
+  // Optionally, show your own install button here
+  // For now, we'll just log it
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  deferredPrompt = null;
 });
 </script>
 </body>

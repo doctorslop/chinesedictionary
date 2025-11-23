@@ -48,3 +48,6 @@ composer.lock
 coverage/
 .nyc_output/
 .phpunit.result.cache
+
+# Dictionary chunks (regenerate with chunk_dictionary.py)
+dict_chunks/
