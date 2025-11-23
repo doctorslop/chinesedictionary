@@ -1677,11 +1677,43 @@ function performSearchMainThread(query) {
 // TEXT-TO-SPEECH FUNCTIONALITY
 // =============================================================================
 
+// Cache for speech synthesis voices
+let cachedVoices = [];
+let voicesLoaded = false;
+
+/**
+ * Load and cache available speech synthesis voices
+ */
+function loadVoices() {
+  return new Promise((resolve) => {
+    cachedVoices = window.speechSynthesis.getVoices();
+
+    if (cachedVoices.length > 0) {
+      voicesLoaded = true;
+      console.log('✓ Loaded', cachedVoices.length, 'speech voices');
+      resolve(cachedVoices);
+    } else {
+      // Voices not loaded yet, wait for the event
+      window.speechSynthesis.onvoiceschanged = () => {
+        cachedVoices = window.speechSynthesis.getVoices();
+        voicesLoaded = true;
+        console.log('✓ Loaded', cachedVoices.length, 'speech voices');
+        resolve(cachedVoices);
+      };
+    }
+  });
+}
+
+// Initialize voice loading
+if ('speechSynthesis' in window) {
+  loadVoices();
+}
+
 /**
  * Speak Chinese text using Web Speech API
  * @param {string} text - Chinese text to pronounce
  */
-function speakChinese(text) {
+async function speakChinese(text) {
   if (!text) return;
 
   // Check if speech synthesis is available
@@ -1692,6 +1724,15 @@ function speakChinese(text) {
 
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
+
+  // Ensure voices are loaded
+  if (!voicesLoaded) {
+    try {
+      await loadVoices();
+    } catch (error) {
+      console.error('Failed to load voices:', error);
+    }
+  }
 
   const utterance = new SpeechSynthesisUtterance(text);
 
@@ -1704,39 +1745,40 @@ function speakChinese(text) {
   utterance.volume = 1.0;
 
   // Try to find a Chinese voice
-  const voices = window.speechSynthesis.getVoices();
-  const chineseVoice = voices.find(voice =>
+  const chineseVoice = cachedVoices.find(voice =>
     voice.lang.startsWith('zh') || voice.lang.startsWith('cmn')
   );
 
   if (chineseVoice) {
     utterance.voice = chineseVoice;
+    console.log('Using voice:', chineseVoice.name);
+  } else {
+    console.warn('No Chinese voice found, using default voice');
   }
 
   // Error handling
   utterance.onerror = function(event) {
     console.error('Speech synthesis error:', event);
+    alert('Speech synthesis failed. Please try again.');
+  };
+
+  // Success feedback
+  utterance.onstart = function() {
+    console.log('Speaking:', text);
   };
 
   window.speechSynthesis.speak(utterance);
-}
-
-// Load voices when they become available (needed for some browsers)
-if ('speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = function() {
-    window.speechSynthesis.getVoices();
-  };
 }
 
 /**
  * Event delegation for dynamically created buttons
  * Using data attributes instead of inline onclick handlers (XSS safe)
  */
-document.addEventListener('click', function(e) {
+document.addEventListener('click', async function(e) {
   // Handle speak buttons
   if (e.target.classList.contains('speak-btn')) {
     const text = e.target.getAttribute('data-text');
-    if (text) speakChinese(text);
+    if (text) await speakChinese(text);
   }
   // Handle copy buttons
   else if (e.target.classList.contains('copy-btn')) {
@@ -1775,9 +1817,9 @@ searchInput.addEventListener('input', () => {
   speakQueryBtn.style.display = hasChinese ? 'inline-block' : 'none';
 });
 
-speakQueryBtn.addEventListener('click', () => {
+speakQueryBtn.addEventListener('click', async () => {
   const query = searchInput.value.trim();
-  if (query) speakChinese(query);
+  if (query) await speakChinese(query);
 });
 
 // =============================================================================
