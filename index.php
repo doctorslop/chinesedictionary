@@ -21,19 +21,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
 :root {
-  --font: -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", "Inter", Arial, sans-serif;
-  --font-size: 16px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-size: 15px;
 
-  --primary: #2563eb;
-  --accent: #3b82f6;
-  --background: #0f172a;
-  --card-bg: #182236;
-  --border: #253047;
-  --text: #e4e9f7;
-  --muted: #7f93b8;
-  --shadow: 0 2px 12px rgba(30,41,59,0.10);
-  --radius: 9px;
-  --focus: #93c5fd;
+  --primary: #0066cc;
+  --primary-hover: #0052a3;
+  --background: #0a0e1a;
+  --card-bg: #131720;
+  --border: #1f2937;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --radius: 6px;
+  --focus: #3b82f6;
 }
 
 body {
@@ -43,145 +43,143 @@ body {
   color: var(--text);
   margin: 0;
   min-height: 100vh;
-  transition: background 0.22s, color 0.22s;
+  transition: background 0.2s, color 0.2s;
   font-weight: 400;
-  line-height: 1.7;
-  letter-spacing: -0.01em;
+  line-height: 1.6;
+  letter-spacing: normal;
 }
 body.light {
-  --background: #f8fafc;
-  --card-bg: #fff;
+  --background: #ffffff;
+  --card-bg: #f9fafb;
   --border: #e5e7eb;
-  --text: #1e293b;
-  --muted: #64748b;
-  --shadow: 0 4px 24px rgba(0,0,0,0.07);
+  --text: #111827;
+  --muted: #6b7280;
+  --shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 a { color: var(--primary); text-decoration: none;}
 .container {
-  max-width: 580px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: 0 16px 32px;
+  padding: 0 20px 40px;
 }
 .header {
   text-align: center;
-  margin-top: 36px;
-  margin-bottom: 18px;
+  margin-top: 48px;
+  margin-bottom: 32px;
   position: relative;
 }
 .header h1 {
-  font-size: 1.7rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-  letter-spacing: -1.2px;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
   font-family: var(--font);
+  color: var(--text);
 }
 .header p {
   color: var(--muted);
-  font-size: 1.08rem;
+  font-size: 0.95rem;
   margin-bottom: 0;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: 400;
+  letter-spacing: normal;
 }
-#settingsBtn, #toggleTheme, #helpBtn {
-  background: none;
+#toggleTheme, #helpBtn {
+  background: transparent;
   border: none;
-  font-size: 1.22em;
+  font-size: 1.1em;
   cursor: pointer;
   position: absolute;
-  top: 7px;
+  top: 0;
   color: var(--muted);
-  border-radius: 50%;
-  padding: 4px 8px;
-  transition: color 0.2s, background 0.2s;
-  font-weight: 600;
+  border-radius: 4px;
+  padding: 6px 10px;
+  transition: all 0.15s ease;
+  font-weight: 400;
   font-family: var(--font);
 }
-#settingsBtn { right: 0; }
-#helpBtn { right: 40px; }
+#helpBtn { right: 0; }
 #toggleTheme { left: 0; }
-#settingsBtn:focus, #toggleTheme:focus, #helpBtn:focus { outline: 2px solid var(--focus); background: var(--card-bg);}
-#toggleTheme:hover, #settingsBtn:hover, #helpBtn:hover { color: var(--primary); background: var(--card-bg);}
+#toggleTheme:focus, #helpBtn:focus { outline: none; color: var(--text); }
+#toggleTheme:hover, #helpBtn:hover { color: var(--text); }
 .search-box {
   background: var(--card-bg);
   border-radius: var(--radius);
-  padding: 16px 17px 6px;
+  border: 1px solid var(--border);
+  padding: 20px;
   box-shadow: var(--shadow);
-  margin-bottom: 18px;
-  transition: background 0.22s;
+  margin-bottom: 24px;
+  transition: background 0.2s;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
-body.light .search-box { background: var(--card-bg); }
 .search-controls {
   display: flex;
-  gap: 7px;
+  gap: 8px;
   align-items: stretch;
   flex-wrap: wrap;
   position: relative;
 }
 #search {
   flex: 1;
-  padding: 10px 14px;
-  font-size: 1em;
-  border: 1.5px solid var(--border);
+  padding: 11px 14px;
+  font-size: 0.95rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--background);
   color: var(--text);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  box-shadow: none;
   font-family: var(--font);
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  font-weight: 400;
+  letter-spacing: normal;
+  min-width: 0;
 }
 body.light #search {
   background: #fff;
-  color: #1e293b;
+  color: var(--text);
   border-color: var(--border);
 }
 #search:focus {
   outline: none;
-  border-color: var(--focus);
-  box-shadow: 0 0 0 2px var(--focus);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 .btn {
-  padding: 9px 16px;
-  font-size: 1em;
-  border: none;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
-  font-weight: 600;
-  background: linear-gradient(90deg, var(--card-bg) 85%, var(--background) 100%);
-  color: var(--primary);
-  border: 1.5px solid var(--border);
-  transition: background 0.22s, color 0.22s, border-color 0.22s, box-shadow 0.22s;
-  box-shadow: 0 1px 3px rgba(30,41,59,0.06);
-  letter-spacing: 0.01em;
+  font-weight: 500;
+  background: var(--card-bg);
+  color: var(--text);
+  transition: all 0.15s ease;
+  letter-spacing: normal;
   font-family: var(--font);
+  white-space: nowrap;
 }
 .btn:focus {
   outline: none;
-  border-color: var(--focus);
-  box-shadow: 0 0 0 2px var(--focus);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 .btn-primary {
-  background: linear-gradient(90deg, var(--primary) 90%, var(--accent) 100%);
+  background: var(--primary);
   color: #fff;
   border-color: var(--primary);
 }
-.btn-primary:hover, .btn-primary:focus {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+.btn-primary:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
 }
 .btn-secondary {
-  background: var(--card-bg);
-  color: var(--primary);
+  background: transparent;
+  color: var(--muted);
   border-color: var(--border);
 }
-.btn-secondary:hover, .btn-secondary:focus {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+.btn-secondary:hover {
+  background: var(--card-bg);
+  color: var(--text);
+  border-color: var(--border);
 }
 .status {
   padding: 6px 0 0;
@@ -205,160 +203,158 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
 .results-container {
   background: var(--card-bg);
   border-radius: var(--radius);
+  border: 1px solid var(--border);
   box-shadow: var(--shadow);
-  padding: 12px;
-  min-height: 90px;
-  transition: background 0.22s;
+  padding: 20px;
+  min-height: 200px;
+  transition: background 0.2s;
 }
-body.light .results-container { background: var(--card-bg);}
 .results-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1.5px solid var(--border);
-  font-size: 1em;
-  font-weight: 600;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  font-weight: 500;
   font-family: var(--font);
 }
-body.light .results-header { border-color: var(--border);}
 .results-count { color: var(--muted);}
-.view-options { display: flex; gap: 7px;}
+.view-options { display: flex; gap: 6px;}
 .view-btn {
-  padding: 6px 14px;
-  font-size: 1em;
-  border: 1.5px solid var(--border);
-  background: var(--card-bg);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+  background: transparent;
   border-radius: var(--radius);
-  color: var(--primary);
-  font-weight: 600;
+  color: var(--muted);
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  transition: all 0.15s ease;
   font-family: var(--font);
 }
-.view-btn.active, .view-btn:focus {
+.view-btn.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
 }
-body.light .view-btn { background: #fff; color: #2563eb; border-color: var(--border);}
-body.light .view-btn.active { background: var(--primary); color: #fff;}
+.view-btn:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
 .cards-view {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 13px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
 }
 .word-card {
   background: var(--background);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 10px 10px;
-  transition: box-shadow 0.18s, border-color 0.18s;
+  padding: 16px;
+  transition: all 0.15s ease;
   cursor: pointer;
   position: relative;
   word-break: break-word;
-  min-height: 52px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   font-family: var(--font);
-  font-size: 1.04em;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 400;
 }
-.word-card:hover, .word-card:focus {
-  box-shadow: 0 4px 12px rgba(30,41,59,0.10);
+.word-card:hover {
   border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .word-card .chinese-text {
-  font-size: 1.13em;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: var(--text);
   display: flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 6px;
   font-family: var(--font);
+  margin-bottom: 8px;
 }
 .word-card .pinyin {
-  font-size: 1em;
-  margin-bottom: 4px;
-  margin-top: 2px;
-  line-height: 1.3;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  line-height: 1.4;
   color: var(--primary);
   font-weight: 500;
   font-family: var(--font);
 }
 .word-card .english {
-  font-size: 0.97em;
-  color: #b0bdd1;
-  margin-bottom: 1px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
   font-family: var(--font);
 }
 .word-card .actions {
   position: absolute;
-  top: 4px;
-  right: 5px;
+  top: 10px;
+  right: 10px;
   display: flex;
-  gap: 3px;
+  gap: 4px;
 }
 .word-card .actions button {
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 1em;
+  font-size: 0.95em;
   cursor: pointer;
   color: var(--muted);
-  transition: color 0.18s;
-  border-radius: 50%;
-  padding: 2px;
+  transition: all 0.15s ease;
+  border-radius: 4px;
+  padding: 4px;
   font-family: var(--font);
-  font-weight: 600;
+  font-weight: 400;
 }
 .word-card .actions button:hover {
-  background: var(--accent);
-  color: #fff;
+  color: var(--text);
+  background: var(--card-bg);
 }
 body.light .word-card {
   background: #fff;
-  border-color: #e5e7eb;
-  color: #1e293b;
+  border-color: var(--border);
 }
-body.light .word-card .chinese-text { color: #1e293b;}
-body.light .word-card .english { color: #1e293b;}
+body.light .word-card .english { color: var(--muted);}
 .table-view {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   font-family: var(--font);
-  font-size: 1em;
+  font-size: 0.9rem;
 }
-.table-view thead { background: #182236;}
+.table-view thead { background: transparent;}
 .table-view th {
-  padding: 7px;
+  padding: 10px 12px;
   text-align: left;
-  font-weight: 700;
-  color: #93c5fd;
-  border-bottom: 1.5px solid #334155;
-  font-size: 1em;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
   font-family: var(--font);
 }
 .table-view td {
-  padding: 7px;
-  border-bottom: 1px solid #334155;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
   vertical-align: top;
-  font-size: 1em;
+  font-size: 0.9rem;
   font-family: var(--font);
-  font-weight: 500;
+  font-weight: 400;
 }
-.table-view tr:hover { background: #182236;}
-.table-view .chinese-cell { font-size: 1.07em; font-weight: 700; color: var(--text);}
-.table-view .pinyin-cell { font-size: 1em; color: var(--primary);}
-.table-view .english-cell { font-size: 1em; color: #b0bdd1;}
-body.light .table-view thead { background: #f3f4fa;}
-body.light .table-view th { color: #2563eb; border-color: #e5e7eb;}
-body.light .table-view td { border-color: #e5e7eb;}
-body.light .table-view tr:hover { background: #f3f4fa;}
-body.light .table-view .chinese-cell { color: #1e293b;}
-body.light .table-view .english-cell { color: #1e293b;}
+.table-view tbody tr:hover { background: var(--card-bg);}
+.table-view .chinese-cell { font-size: 1.1rem; font-weight: 600; color: var(--text);}
+.table-view .pinyin-cell { font-size: 0.9rem; color: var(--primary);}
+.table-view .english-cell { font-size: 0.9rem; color: var(--muted); line-height: 1.5;}
+body.light .table-view thead { background: transparent;}
+body.light .table-view th { color: var(--muted); border-color: var(--border);}
+body.light .table-view td { border-color: var(--border);}
+body.light .table-view tbody tr:hover { background: var(--card-bg);}
+body.light .table-view .chinese-cell { color: var(--text);}
+body.light .table-view .english-cell { color: var(--muted);}
 .list-view { padding: 6px 0;}
 .list-entry {
   padding: 6px 0;
@@ -394,7 +390,7 @@ body.light .list-entry .english { color: #1e293b;}
   margin-bottom: 6px;
   opacity: 0.45;
 }
-#settingsModal, #helpModal {
+#helpModal {
   display: none;
   position: fixed;
   z-index: 99;
@@ -411,11 +407,10 @@ body.light .list-entry .english { color: #1e293b;}
   font-size: 1em;
   font-weight: 500;
 }
-body.light #settingsModal, body.light #helpModal { background: #fff; color: #1e293b;}
-#settingsModal h2, #helpModal h2 { font-size: 1.3em; margin-bottom: 12px; font-weight: 700;}
+body.light #helpModal { background: #fff; color: #1e293b;}
+#helpModal h2 { font-size: 1.3em; margin-bottom: 12px; font-weight: 700;}
 #helpModal h3 { font-size: 1.1em; color: var(--primary); margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px;}
-#settingsModal label { display: block; margin-bottom: 8px;}
-#settingsModal .close-btn, #helpModal .close-btn {
+#helpModal .close-btn {
   float: right;
   background: none;
   border: none;
@@ -453,10 +448,9 @@ body.light .footer { color: #64748b;}
   .container { padding: 0 3px 14px;}
   .header h1 { font-size: 1.15em;}
   .cards-view { grid-template-columns: 1fr; }
-  #settingsBtn, #toggleTheme { top: 2px; font-size: 1em;}
+  #toggleTheme { top: 2px; font-size: 1em;}
   .search-box, .results-container { padding: 4px; }
   .table-view th, .table-view td { padding: 4px;}
-  #settingsModal { min-width: 95px; padding: 3px 1px;}
   .results-header { font-size: 0.91em; flex-direction: column; align-items: flex-start;}
   .view-options { margin-top: 3px;}
 }
@@ -467,7 +461,6 @@ body.light .footer { color: #64748b;}
   <div class="header">
     <button id="toggleTheme" aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
     <button id="helpBtn" aria-label="Help" title="Help & Keyboard Shortcuts">❓</button>
-    <button id="settingsBtn" aria-label="Settings" title="Settings">⚙️</button>
     <h1 tabindex="0">Chinese Dictionary</h1>
     <p>Instant word segmentation, pinyin, translation, and more</p>
   </div>
@@ -499,26 +492,8 @@ body.light .footer { color: #64748b;}
     </div>
   </div>
   <div class="footer">
-    <span>v 0.2.1</span>
+    <span>v 0.2.2</span>
   </div>
-</div>
-<!-- Settings Modal -->
-<div id="settingsModal" aria-modal="true" role="dialog">
-  <button class="close-btn" id="closeSettings" aria-label="Close settings">&times;</button>
-  <h2>Settings</h2>
-  <label>
-    <input type="checkbox" id="toggleFavorites">
-    Enable favorites
-  </label>
-  <label>
-    Font size:
-    <select id="fontSize">
-      <option value="13">Small</option>
-      <option value="15" selected>Normal</option>
-      <option value="17">Large</option>
-      <option value="19">Extra Large</option>
-    </select>
-  </label>
 </div>
 
 <!-- Help Modal -->
@@ -533,7 +508,7 @@ body.light .footer { color: #64748b;}
       <tr><td><kbd>Esc</kbd></td><td>Close modals</td></tr>
     </table>
 
-    <h3 style="margin-top: 15px; font-size: 1.1em;">Search Tips</h3>
+    <h3 style="margin-top: 15px; font-size: 1.1em;">Basic Search</h3>
     <ul style="font-size: 0.9em; line-height: 1.6; padding-left: 20px;">
       <li><strong>Chinese:</strong> 你好, 学习</li>
       <li><strong>Pinyin:</strong> nihao, ni3hao3</li>
@@ -541,14 +516,21 @@ body.light .footer { color: #64748b;}
       <li><strong>Sentences:</strong> Auto-segments long text</li>
     </ul>
 
+    <h3 style="margin-top: 15px; font-size: 1.1em;">Advanced Search</h3>
+    <ul style="font-size: 0.9em; line-height: 1.6; padding-left: 20px;">
+      <li><strong>Wildcards:</strong> chin*, *文, b*g</li>
+      <li><strong>Exclude:</strong> apple -phone</li>
+      <li><strong>Field-specific:</strong> p:you, e:you, c:个</li>
+      <li><strong>Exact phrase:</strong> "to use"</li>
+    </ul>
+
     <h3 style="margin-top: 15px; font-size: 1.1em;">Features</h3>
     <ul style="font-size: 0.9em; line-height: 1.6; padding-left: 20px;">
       <li>📋 Copy definitions</li>
       <li>🔗 Share links</li>
-      <li>⭐ Save favorites (optional)</li>
       <li>📊 3 view modes: Table, Cards, List</li>
       <li>🌓 Dark/Light theme</li>
-      <li>🔤 Adjustable font size</li>
+      <li>🔊 Text-to-speech pronunciation</li>
     </ul>
 
     <h3 style="margin-top: 15px; font-size: 1.1em;">About</h3>
@@ -573,6 +555,96 @@ body.light .footer { color: #64748b;}
  * Data: 123,596+ entries from CC-CEDICT
  * License: CC BY-SA 4.0
  */
+
+// =============================================================================
+// ADVANCED SEARCH QUERY PARSER
+// =============================================================================
+
+/**
+ * Parse advanced search query with wildcards, exclusions, field-specific, and grouping
+ * @param {string} query - Raw search query
+ * @returns {Object} - Parsed query object with terms, exclusions, field, wildcards, etc.
+ */
+function parseSearchQuery(query) {
+  const parsed = {
+    include: [],      // Terms to include
+    exclude: [],      // Terms to exclude (-)
+    field: null,      // Field-specific search (p:, e:, c:)
+    hasWildcard: false,
+    originalQuery: query
+  };
+
+  // Extract quoted strings first (exact phrases)
+  const quotedPattern = /"([^"]+)"/g;
+  const quotes = [];
+  let match;
+  while ((match = quotedPattern.exec(query)) !== null) {
+    quotes.push({ text: match[1], isQuoted: true });
+  }
+
+  // Remove quoted strings from query for further processing
+  let remaining = query.replace(quotedPattern, '').trim();
+
+  // Check for field-specific prefix at start
+  const fieldMatch = remaining.match(/^([pec]):/i);
+  if (fieldMatch) {
+    parsed.field = fieldMatch[1].toLowerCase();
+    remaining = remaining.substring(fieldMatch[0].length).trim();
+  }
+
+  // Split remaining into terms
+  const terms = remaining.split(/\s+/).filter(t => t.length > 0);
+
+  // Process each term
+  terms.forEach(term => {
+    // Check for field-specific prefix
+    const termFieldMatch = term.match(/^([pec]):/i);
+    if (termFieldMatch) {
+      if (!parsed.field) parsed.field = termFieldMatch[1].toLowerCase();
+      term = term.substring(termFieldMatch[0].length);
+    }
+
+    // Check for exclusion
+    if (term.startsWith('-') && term.length > 1) {
+      parsed.exclude.push(term.substring(1));
+    }
+    // Check for wildcard
+    else if (term.includes('*')) {
+      parsed.hasWildcard = true;
+      parsed.include.push(term);
+    }
+    // Regular term
+    else if (term.length > 0) {
+      parsed.include.push(term);
+    }
+  });
+
+  // Add quoted phrases to include list
+  quotes.forEach(q => {
+    parsed.include.push(q.text);
+  });
+
+  return parsed;
+}
+
+/**
+ * Check if text matches wildcard pattern
+ * @param {string} pattern - Pattern with * wildcards
+ * @param {string} text - Text to match against
+ * @returns {boolean} - True if matches
+ */
+function matchesWildcard(pattern, text) {
+  if (!pattern.includes('*')) return text.includes(pattern);
+
+  // Convert wildcard pattern to regex
+  // Escape special regex chars except *
+  const regexPattern = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+
+  const regex = new RegExp('^' + regexPattern + '$', 'i');
+  return regex.test(text);
+}
 
 // =============================================================================
 // PINYIN PROCESSING
@@ -631,19 +703,27 @@ function splitPinyinIntoSyllables(input) {
 }
 
 /**
- * Search dictionary entries by Pinyin
- * Handles: with/without tones, with/without spaces
- * Optimized to avoid exponential tone combinations
+ * Search dictionary entries by Pinyin (with advanced syntax support)
+ * Handles: with/without tones, with/without spaces, wildcards, exclusions
  * @param {string} query - Pinyin search query
+ * @param {Object} parsedQuery - Parsed query object (optional)
  * @returns {Array} - Matching dictionary entries (max 100)
  */
-function searchPinyin(query) {
-  let lower = query.toLowerCase().trim();
+function searchPinyin(query, parsedQuery = null) {
+  // Parse query if not already parsed
+  if (!parsedQuery) {
+    parsedQuery = parseSearchQuery(query);
+  }
+
+  // If field-specific and not pinyin, return empty
+  if (parsedQuery.field && parsedQuery.field !== 'p') return [];
+
+  let lower = parsedQuery.include.join(' ').toLowerCase().trim();
   let splitAttempt = null;
   let split = lower;
 
   // Try to split pinyin into syllables if not already spaced
-  if (!lower.includes(' ')) {
+  if (!lower.includes(' ') && !parsedQuery.hasWildcard) {
     splitAttempt = splitPinyinIntoSyllables(lower);
     if (splitAttempt) split = splitAttempt;
   }
@@ -674,33 +754,60 @@ function searchPinyin(query) {
 
     // Match variants against dictionary entries
     let matched = false;
-    for (const term of variants) {
-      const termNoSpaces = term.replace(/\s+/g, '');
 
-      // If query has tones, match with tones; otherwise match without tones
-      if (hasTones) {
-        if (entryPinyinWithTones === term ||
-            entryPinyinWithTonesNoSpaces === termNoSpaces ||
-            entryPinyinWithTones.includes(term) ||
-            entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
-          matched = true;
-          break;
+    // Handle wildcard search
+    if (parsedQuery.hasWildcard) {
+      for (const term of parsedQuery.include) {
+        if (term.includes('*')) {
+          const targetPinyin = hasTones ? entryPinyinWithTones : entryPinyinNoTones;
+          if (matchesWildcard(term, targetPinyin) || matchesWildcard(term, targetPinyin.replace(/\s+/g, ''))) {
+            matched = true;
+            break;
+          }
         }
-      } else {
-        if (entryPinyinNoTones === term ||
-            entryPinyinNoTonesNoSpaces === termNoSpaces ||
-            entryPinyinNoTones.includes(term) ||
-            entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
-          matched = true;
+      }
+    } else {
+      // Regular search
+      for (const term of variants) {
+        const termNoSpaces = term.replace(/\s+/g, '');
+
+        // If query has tones, match with tones; otherwise match without tones
+        if (hasTones) {
+          if (entryPinyinWithTones === term ||
+              entryPinyinWithTonesNoSpaces === termNoSpaces ||
+              entryPinyinWithTones.includes(term) ||
+              entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            break;
+          }
+        } else {
+          if (entryPinyinNoTones === term ||
+              entryPinyinNoTonesNoSpaces === termNoSpaces ||
+              entryPinyinNoTones.includes(term) ||
+              entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // Check exclusions
+    if (matched && parsedQuery.exclude.length > 0) {
+      for (const excludeTerm of parsedQuery.exclude) {
+        const targetText = (entry.searchableEnglish + ' ' + entry.pinyinSearchable + ' ' + entry.simplified).toLowerCase();
+        if (targetText.includes(excludeTerm.toLowerCase())) {
+          matched = false;
           break;
         }
       }
     }
+
     if (matched) results.push(entry);
   });
 
   // If no exact matches found and query is reasonable length, try fuzzy matching
-  if (results.length === 0 && lower.length >= 3 && lower.length <= 15) {
+  if (results.length === 0 && lower.length >= 3 && lower.length <= 15 && !parsedQuery.hasWildcard) {
     const fuzzyResults = [];
     dictionary.forEach(entry => {
       if (!entry.pinyin) return;
@@ -716,7 +823,22 @@ function searchPinyin(query) {
             levenshteinDistance(term, entryPinyin),
             levenshteinDistance(termNoSpaces, entryPinyinNoSpaces)
           );
-          fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+
+          // Check exclusions for fuzzy results too
+          let excluded = false;
+          if (parsedQuery.exclude.length > 0) {
+            for (const excludeTerm of parsedQuery.exclude) {
+              const targetText = (entry.searchableEnglish + ' ' + entry.pinyinSearchable + ' ' + entry.simplified).toLowerCase();
+              if (targetText.includes(excludeTerm.toLowerCase())) {
+                excluded = true;
+                break;
+              }
+            }
+          }
+
+          if (!excluded) {
+            fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+          }
           break;
         }
       }
@@ -839,9 +961,6 @@ function findFuzzyMatches(query, candidates, maxDistance = 2) {
 
 let dictionary = [];                    // Main dictionary array (loaded from cedict.json)
 let currentView = 'table';              // Current display mode: 'table', 'cards', or 'list'
-let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-let enableFavorites = localStorage.getItem('enableFavorites') === 'true';
-let fontSize = localStorage.getItem('fontSize') || '15';
 let useWebWorker = localStorage.getItem('useWebWorker') !== 'false'; // Default: enabled
 
 // DOM query shortcuts
@@ -1100,41 +1219,141 @@ function detectInputType(text) {
 }
 
 /**
- * Search dictionary by Chinese characters
- * Prioritizes exact matches, then substring matches
+ * Search dictionary by Chinese characters (with advanced syntax support)
+ * Prioritizes exact matches, then substring matches, supports wildcards and exclusions
  * @param {string} query - Chinese text
+ * @param {Object} parsedQuery - Parsed query object (optional)
  * @returns {Array} - Matching entries (max 100)
  */
-function searchChinese(query) {
+function searchChinese(query, parsedQuery = null) {
+  // Parse query if not already parsed
+  if (!parsedQuery) {
+    parsedQuery = parseSearchQuery(query);
+  }
+
+  // If field-specific and not Chinese, return empty
+  if (parsedQuery.field && parsedQuery.field !== 'c') return [];
+
   const results = [];
-  const cleanQuery = query.replace(/[，。！？；：、\s]/g,'');
+  const cleanQuery = parsedQuery.include.join('').replace(/[，。！？；：、\s]/g,'');
+
   dictionary.forEach(entry => {
-    if (entry.simplified === cleanQuery || entry.traditional === cleanQuery)
+    let matched = false;
+
+    // Handle wildcard search
+    if (parsedQuery.hasWildcard) {
+      for (const term of parsedQuery.include) {
+        if (term.includes('*')) {
+          if (matchesWildcard(term, entry.simplified) || matchesWildcard(term, entry.traditional)) {
+            matched = true;
+            break;
+          }
+        }
+      }
+    } else {
+      // Regular search
+      if (entry.simplified === cleanQuery || entry.traditional === cleanQuery) {
+        matched = true;
+        results.push({...entry, exactMatch:true});
+      } else if (cleanQuery.length===1 && (entry.simplified.includes(cleanQuery)||entry.traditional.includes(cleanQuery))) {
+        matched = true;
+        results.push({...entry, exactMatch:false});
+      }
+    }
+
+    // Check exclusions
+    if (matched && parsedQuery.exclude.length > 0) {
+      for (const excludeTerm of parsedQuery.exclude) {
+        const targetText = (entry.searchableEnglish + ' ' + entry.pinyinSearchable + ' ' + entry.simplified).toLowerCase();
+        if (targetText.includes(excludeTerm.toLowerCase())) {
+          matched = false;
+          break;
+        }
+      }
+    }
+
+    if (matched && parsedQuery.hasWildcard) {
       results.push({...entry, exactMatch:true});
-    else if (cleanQuery.length===1 && (entry.simplified.includes(cleanQuery)||entry.traditional.includes(cleanQuery)))
-      results.push({...entry, exactMatch:false});
+    }
   });
+
   return results.sort((a,b) => (a.exactMatch&&!b.exactMatch?-1:!a.exactMatch&&b.exactMatch?1:a.simplified.length-b.simplified.length)).slice(0,100).map(r=>{delete r.exactMatch;return r;});
 }
+
 /**
- * Search dictionary by English keywords
- * Uses relevance scoring to rank results
+ * Search dictionary by English keywords (with advanced syntax support)
+ * Uses relevance scoring to rank results, supports wildcards, exclusions, and exact phrases
  * @param {string} query - English text
+ * @param {Object} parsedQuery - Parsed query object (optional)
  * @returns {Array} - Matching entries sorted by relevance (max 100)
  */
-function searchEnglish(query) {
-  const results = [], searchTerms = query.toLowerCase().trim().split(/\s+/);
+function searchEnglish(query, parsedQuery = null) {
+  // Parse query if not already parsed
+  if (!parsedQuery) {
+    parsedQuery = parseSearchQuery(query);
+  }
+
+  // If field-specific and not English, return empty
+  if (parsedQuery.field && parsedQuery.field !== 'e') return [];
+
+  const results = [];
+  const searchTerms = parsedQuery.include.map(t => t.toLowerCase());
+
   dictionary.forEach(entry => {
     if (!entry.searchableEnglish) return;
-    const matches = searchTerms.some(term => term.length<=2 ? new RegExp(`\\b${term}\\b`,'i').test(entry.searchableEnglish) : entry.searchableEnglish.includes(term));
-    if(matches){
-      const matchCount = searchTerms.filter(term=>entry.searchableEnglish.includes(term)).length;
+
+    let matched = false;
+    let matchCount = 0;
+
+    // Handle wildcard search
+    if (parsedQuery.hasWildcard) {
+      for (const term of searchTerms) {
+        if (term.includes('*')) {
+          const englishWords = entry.searchableEnglish.split(/[\s\/;,]+/);
+          for (const word of englishWords) {
+            if (matchesWildcard(term, word)) {
+              matched = true;
+              matchCount++;
+              break;
+            }
+          }
+        } else {
+          if (entry.searchableEnglish.includes(term)) {
+            matched = true;
+            matchCount++;
+          }
+        }
+      }
+    } else {
+      // Regular search
+      for (const term of searchTerms) {
+        const termMatch = term.length<=2 ?
+          new RegExp(`\\b${term}\\b`,'i').test(entry.searchableEnglish) :
+          entry.searchableEnglish.includes(term);
+        if (termMatch) {
+          matched = true;
+          matchCount++;
+        }
+      }
+    }
+
+    // Check exclusions
+    if (matched && parsedQuery.exclude.length > 0) {
+      for (const excludeTerm of parsedQuery.exclude) {
+        if (entry.searchableEnglish.includes(excludeTerm.toLowerCase())) {
+          matched = false;
+          break;
+        }
+      }
+    }
+
+    if(matched){
       results.push({...entry, relevance:matchCount*10+calculateRelevance(entry.searchableEnglish,searchTerms)});
     }
   });
 
-  // If no exact matches and single term query, try fuzzy matching
-  if (results.length === 0 && searchTerms.length === 1 && searchTerms[0].length >= 4) {
+  // If no exact matches and single term query (no wildcards), try fuzzy matching
+  if (results.length === 0 && searchTerms.length === 1 && searchTerms[0].length >= 4 && !parsedQuery.hasWildcard) {
     const fuzzyResults = [];
     const queryTerm = searchTerms[0];
 
@@ -1145,7 +1364,21 @@ function searchEnglish(query) {
       for (const word of englishWords) {
         if (isFuzzyMatch(queryTerm, word, 2)) {
           const distance = levenshteinDistance(queryTerm, word);
-          fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+
+          // Check exclusions for fuzzy results too
+          let excluded = false;
+          if (parsedQuery.exclude.length > 0) {
+            for (const excludeTerm of parsedQuery.exclude) {
+              if (entry.searchableEnglish.includes(excludeTerm.toLowerCase())) {
+                excluded = true;
+                break;
+              }
+            }
+          }
+
+          if (!excluded) {
+            fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+          }
           break;
         }
       }
@@ -1233,7 +1466,6 @@ function segmentSentence(sentence) {
  */
 function renderCards(segments, query='') {
   return `<div class="cards-view">${segments.map(entry=>{
-    const isFav = favorites.some(f=>f.simplified===entry.simplified&&f.traditional===entry.traditional);
     const defText = `${entry.simplified} (${entry.pinyin}) - ${entry.english.join('; ')}`;
     const shareUrl = getShareLink(entry);
     // Use data attributes instead of inline event handlers for better security
@@ -1243,7 +1475,6 @@ function renderCards(segments, query='') {
           <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
           <button class="copy-btn" title="Copy" aria-label="Copy" data-copy="${escapeHTML(defText)}">📋</button>
           <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
-          ${enableFavorites?`<button class="fav-btn" title="${isFav?'Remove from':'Add to'} favorites" aria-label="Favorite" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">${isFav?'★':'☆'}</button>`:''}
         </div>
         <div class="chinese-text">
           <span>${highlight(entry.simplified,query)}</span>
@@ -1379,14 +1610,31 @@ function displayWorkerResults(data) {
  * Fallback search on main thread (when worker not available)
  */
 function performSearchMainThread(query) {
-  const inputType = detectInputType(query);
+  // Parse the query for advanced syntax
+  const parsedQuery = parseSearchQuery(query);
+
+  // Determine input type from original query (before parsing)
+  const inputType = detectInputType(parsedQuery.include.join(' '));
   let segments=[],searchTypeLabel='';
-  if (inputType==='chinese') {
+
+  // If field-specific search is specified, override detection
+  if (parsedQuery.field === 'c') {
+    segments = searchChinese(query, parsedQuery);
+    searchTypeLabel = ' (Chinese search)';
+  } else if (parsedQuery.field === 'p') {
+    segments = searchPinyin(query, parsedQuery);
+    searchTypeLabel = ' (Pinyin search)';
+  } else if (parsedQuery.field === 'e') {
+    segments = searchEnglish(query, parsedQuery);
+    searchTypeLabel = ' (English search)';
+  }
+  // Auto-detect if no field specified
+  else if (inputType==='chinese') {
     if(query.length>4||/[，。！？；：、]/.test(query)){
       segments = segmentSentence(query);
       searchTypeLabel = ' (sentence segmentation)';
     } else {
-      segments = searchChinese(query);
+      segments = searchChinese(query, parsedQuery);
       searchTypeLabel = ' (character search)';
       if (!segments.length) {
         segments = segmentSentence(query);
@@ -1394,16 +1642,17 @@ function performSearchMainThread(query) {
       }
     }
   } else if (inputType==='pinyin') {
-    segments = searchPinyin(query);
+    segments = searchPinyin(query, parsedQuery);
     searchTypeLabel = ' (Pinyin search)';
     if (!segments.length) {
-      segments = searchEnglish(query);
+      segments = searchEnglish(query, parsedQuery);
       if (segments.length) searchTypeLabel = ' (English → Chinese)';
     }
   } else {
-    segments = searchEnglish(query);
+    segments = searchEnglish(query, parsedQuery);
     searchTypeLabel = ' (English → Chinese)';
   }
+
   if (!segments.length) {
     resultsHeader.style.display='none';
     resultsDiv.innerHTML = `<div class="empty-state"><p>No results for "${escapeHTML(query)}"</p><p style="font-size: 13px; margin-top: 6px; color: #aaa;">${inputType==='pinyin'?'Try with or without tone numbers':'Try simpler keywords or different terms'}</p></div>`;
@@ -1498,18 +1747,6 @@ document.addEventListener('click', function(e) {
   else if (e.target.classList.contains('share-btn')) {
     const url = e.target.getAttribute('data-share');
     if (url) copyToClipboard(url);
-  }
-  // Handle favorite buttons
-  else if (e.target.classList.contains('fav-btn')) {
-    const simp = e.target.getAttribute('data-simp');
-    const trad = e.target.getAttribute('data-trad');
-    if (simp && trad) {
-      const idx = favorites.findIndex(f=>f.simplified===simp&&f.traditional===trad);
-      if(idx>=0) favorites.splice(idx,1);
-      else favorites.push({simplified:simp,traditional:trad});
-      localStorage.setItem('favorites',JSON.stringify(favorites));
-      performSearch();
-    }
   }
 });
 let searchTimeout;
@@ -1661,34 +1898,15 @@ document.addEventListener('keydown', e => {
   if(e.ctrlKey && e.key==='l'){e.preventDefault();searchInput.value='';performSearch();searchInput.focus();}
   if(e.ctrlKey && e.key==='d'){e.preventDefault();toggleThemeBtn.click();}
   if(e.key==='Escape'){
-    if($('#settingsModal').style.display==='block') closeSettings();
     if($('#helpModal').style.display==='block') closeHelp();
   }
 });
-$('#settingsBtn').addEventListener('click', () => {
-  $('#settingsModal').style.display = 'block';
-});
-$('#closeSettings').addEventListener('click', closeSettings);
-function closeSettings(){ $('#settingsModal').style.display = 'none'; }
 
 $('#helpBtn').addEventListener('click', () => {
   $('#helpModal').style.display = 'block';
 });
 $('#closeHelp').addEventListener('click', closeHelp);
 function closeHelp(){ $('#helpModal').style.display = 'none'; }
-$('#toggleFavorites').checked = enableFavorites;
-$('#toggleFavorites').addEventListener('change', e => {
-  enableFavorites = e.target.checked;
-  localStorage.setItem('enableFavorites', enableFavorites);
-  performSearch();
-});
-$('#fontSize').value = fontSize;
-$('#fontSize').addEventListener('change', e => {
-  fontSize = e.target.value;
-  document.body.style.fontSize = fontSize+'px';
-  localStorage.setItem('fontSize',fontSize);
-});
-document.body.style.fontSize = fontSize+'px';
 
 // =============================================================================
 // URL PARAMETER HANDLING & BROWSER HISTORY
