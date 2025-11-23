@@ -6,6 +6,73 @@
 let dictionary = [];
 
 // =============================================================================
+// ADVANCED SEARCH QUERY PARSER
+// =============================================================================
+
+function parseSearchQuery(query) {
+  const parsed = {
+    include: [],
+    exclude: [],
+    field: null,
+    hasWildcard: false,
+    originalQuery: query
+  };
+
+  const quotedPattern = /"([^"]+)"/g;
+  const quotes = [];
+  let match;
+  while ((match = quotedPattern.exec(query)) !== null) {
+    quotes.push({ text: match[1], isQuoted: true });
+  }
+
+  let remaining = query.replace(quotedPattern, '').trim();
+
+  const fieldMatch = remaining.match(/^([pec]):/i);
+  if (fieldMatch) {
+    parsed.field = fieldMatch[1].toLowerCase();
+    remaining = remaining.substring(fieldMatch[0].length).trim();
+  }
+
+  const terms = remaining.split(/\s+/).filter(t => t.length > 0);
+
+  terms.forEach(term => {
+    const termFieldMatch = term.match(/^([pec]):/i);
+    if (termFieldMatch) {
+      if (!parsed.field) parsed.field = termFieldMatch[1].toLowerCase();
+      term = term.substring(termFieldMatch[0].length);
+    }
+
+    if (term.startsWith('-') && term.length > 1) {
+      parsed.exclude.push(term.substring(1));
+    }
+    else if (term.includes('*')) {
+      parsed.hasWildcard = true;
+      parsed.include.push(term);
+    }
+    else if (term.length > 0) {
+      parsed.include.push(term);
+    }
+  });
+
+  quotes.forEach(q => {
+    parsed.include.push(q.text);
+  });
+
+  return parsed;
+}
+
+function matchesWildcard(pattern, text) {
+  if (!pattern.includes('*')) return text.includes(pattern);
+
+  const regexPattern = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+
+  const regex = new RegExp('^' + regexPattern + '$', 'i');
+  return regex.test(text);
+}
+
+// =============================================================================
 // FUZZY MATCHING UTILITIES
 // =============================================================================
 
@@ -101,12 +168,18 @@ function splitPinyinIntoSyllables(input) {
 // SEARCH FUNCTIONS
 // =============================================================================
 
-function searchPinyin(query) {
-  let lower = query.toLowerCase().trim();
+function searchPinyin(query, parsedQuery = null) {
+  if (!parsedQuery) {
+    parsedQuery = parseSearchQuery(query);
+  }
+
+  if (parsedQuery.field && parsedQuery.field !== 'p') return [];
+
+  let lower = parsedQuery.include.join(' ').toLowerCase().trim();
   let splitAttempt = null;
   let split = lower;
 
-  if (!lower.includes(' ')) {
+  if (!lower.includes(' ') && !parsedQuery.hasWildcard) {
     splitAttempt = splitPinyinIntoSyllables(lower);
     if (splitAttempt) split = splitAttempt;
   }
@@ -133,32 +206,55 @@ function searchPinyin(query) {
     const entryPinyinNoTonesNoSpaces = entryPinyinNoTones.replace(/\s+/g, '');
 
     let matched = false;
-    for (const term of variants) {
-      const termNoSpaces = term.replace(/\s+/g, '');
 
-      if (hasTones) {
-        if (entryPinyinWithTones === term ||
-            entryPinyinWithTonesNoSpaces === termNoSpaces ||
-            entryPinyinWithTones.includes(term) ||
-            entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
-          matched = true;
-          break;
+    if (parsedQuery.hasWildcard) {
+      for (const term of parsedQuery.include) {
+        if (term.includes('*')) {
+          const targetPinyin = hasTones ? entryPinyinWithTones : entryPinyinNoTones;
+          if (matchesWildcard(term, targetPinyin) || matchesWildcard(term, targetPinyin.replace(/\s+/g, ''))) {
+            matched = true;
+            break;
+          }
         }
-      } else {
-        if (entryPinyinNoTones === term ||
-            entryPinyinNoTonesNoSpaces === termNoSpaces ||
-            entryPinyinNoTones.includes(term) ||
-            entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
-          matched = true;
+      }
+    } else {
+      for (const term of variants) {
+        const termNoSpaces = term.replace(/\s+/g, '');
+
+        if (hasTones) {
+          if (entryPinyinWithTones === term ||
+              entryPinyinWithTonesNoSpaces === termNoSpaces ||
+              entryPinyinWithTones.includes(term) ||
+              entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            break;
+          }
+        } else {
+          if (entryPinyinNoTones === term ||
+              entryPinyinNoTonesNoSpaces === termNoSpaces ||
+              entryPinyinNoTones.includes(term) ||
+              entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (matched && parsedQuery.exclude.length > 0) {
+      for (const excludeTerm of parsedQuery.exclude) {
+        const targetText = (entry.searchableEnglish + ' ' + entry.pinyinSearchable + ' ' + entry.simplified).toLowerCase();
+        if (targetText.includes(excludeTerm.toLowerCase())) {
+          matched = false;
           break;
         }
       }
     }
+
     if (matched) results.push(entry);
   });
 
-  // If no exact matches, try fuzzy matching
-  if (results.length === 0 && lower.length >= 3 && lower.length <= 15) {
+  if (results.length === 0 && lower.length >= 3 && lower.length <= 15 && !parsedQuery.hasWildcard) {
     const fuzzyResults = [];
     dictionary.forEach(entry => {
       if (!entry.pinyin) return;
@@ -173,7 +269,21 @@ function searchPinyin(query) {
             levenshteinDistance(term, entryPinyin),
             levenshteinDistance(termNoSpaces, entryPinyinNoSpaces)
           );
-          fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+
+          let excluded = false;
+          if (parsedQuery.exclude.length > 0) {
+            for (const excludeTerm of parsedQuery.exclude) {
+              const targetText = (entry.searchableEnglish + ' ' + entry.pinyinSearchable + ' ' + entry.simplified).toLowerCase();
+              if (targetText.includes(excludeTerm.toLowerCase())) {
+                excluded = true;
+                break;
+              }
+            }
+          }
+
+          if (!excluded) {
+            fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+          }
           break;
         }
       }
@@ -188,32 +298,118 @@ function searchPinyin(query) {
   return results.sort((a,b) => a.simplified.length - b.simplified.length).slice(0, 100);
 }
 
-function searchChinese(query) {
+function searchChinese(query, parsedQuery = null) {
+  if (!parsedQuery) {
+    parsedQuery = parseSearchQuery(query);
+  }
+
+  if (parsedQuery.field && parsedQuery.field !== 'c') return [];
+
   const results = [];
-  const cleanQuery = query.replace(/[，。！？；：、\s]/g,'');
+  const cleanQuery = parsedQuery.include.join('').replace(/[，。！？；：、\s]/g,'');
+
   dictionary.forEach(entry => {
-    if (entry.simplified === cleanQuery || entry.traditional === cleanQuery)
+    let matched = false;
+
+    if (parsedQuery.hasWildcard) {
+      for (const term of parsedQuery.include) {
+        if (term.includes('*')) {
+          if (matchesWildcard(term, entry.simplified) || matchesWildcard(term, entry.traditional)) {
+            matched = true;
+            break;
+          }
+        }
+      }
+    } else {
+      if (entry.simplified === cleanQuery || entry.traditional === cleanQuery) {
+        matched = true;
+        results.push({...entry, exactMatch:true});
+      } else if (cleanQuery.length===1 && (entry.simplified.includes(cleanQuery)||entry.traditional.includes(cleanQuery))) {
+        matched = true;
+        results.push({...entry, exactMatch:false});
+      }
+    }
+
+    if (matched && parsedQuery.exclude.length > 0) {
+      for (const excludeTerm of parsedQuery.exclude) {
+        const targetText = (entry.searchableEnglish + ' ' + entry.pinyinSearchable + ' ' + entry.simplified).toLowerCase();
+        if (targetText.includes(excludeTerm.toLowerCase())) {
+          matched = false;
+          break;
+        }
+      }
+    }
+
+    if (matched && parsedQuery.hasWildcard) {
       results.push({...entry, exactMatch:true});
-    else if (cleanQuery.length===1 && (entry.simplified.includes(cleanQuery)||entry.traditional.includes(cleanQuery)))
-      results.push({...entry, exactMatch:false});
+    }
   });
+
   return results.sort((a,b) => (a.exactMatch&&!b.exactMatch?-1:!a.exactMatch&&b.exactMatch?1:a.simplified.length-b.simplified.length)).slice(0,100).map(r=>{delete r.exactMatch;return r;});
 }
 
-function searchEnglish(query) {
-  const results = [], searchTerms = query.toLowerCase().trim().split(/\s+/);
+function searchEnglish(query, parsedQuery = null) {
+  if (!parsedQuery) {
+    parsedQuery = parseSearchQuery(query);
+  }
+
+  if (parsedQuery.field && parsedQuery.field !== 'e') return [];
+
+  const results = [];
+  const searchTerms = parsedQuery.include.map(t => t.toLowerCase());
+
   dictionary.forEach(entry => {
     if (!entry.searchableEnglish) return;
-    const matches = searchTerms.some(term => term.length<=2 ? new RegExp(`\\b${term}\\b`,'i').test(entry.searchableEnglish) : entry.searchableEnglish.includes(term));
-    if(matches){
-      const matchCount = searchTerms.filter(term=>entry.searchableEnglish.includes(term)).length;
+
+    let matched = false;
+    let matchCount = 0;
+
+    if (parsedQuery.hasWildcard) {
+      for (const term of searchTerms) {
+        if (term.includes('*')) {
+          const englishWords = entry.searchableEnglish.split(/[\s\/;,]+/);
+          for (const word of englishWords) {
+            if (matchesWildcard(term, word)) {
+              matched = true;
+              matchCount++;
+              break;
+            }
+          }
+        } else {
+          if (entry.searchableEnglish.includes(term)) {
+            matched = true;
+            matchCount++;
+          }
+        }
+      }
+    } else {
+      for (const term of searchTerms) {
+        const termMatch = term.length<=2 ?
+          new RegExp(`\\b${term}\\b`,'i').test(entry.searchableEnglish) :
+          entry.searchableEnglish.includes(term);
+        if (termMatch) {
+          matched = true;
+          matchCount++;
+        }
+      }
+    }
+
+    if (matched && parsedQuery.exclude.length > 0) {
+      for (const excludeTerm of parsedQuery.exclude) {
+        if (entry.searchableEnglish.includes(excludeTerm.toLowerCase())) {
+          matched = false;
+          break;
+        }
+      }
+    }
+
+    if(matched){
       const relevance = matchCount*10+calculateRelevance(entry.searchableEnglish,searchTerms);
       results.push({...entry, relevance});
     }
   });
 
-  // If no exact matches and single term, try fuzzy matching
-  if (results.length === 0 && searchTerms.length === 1 && searchTerms[0].length >= 4) {
+  if (results.length === 0 && searchTerms.length === 1 && searchTerms[0].length >= 4 && !parsedQuery.hasWildcard) {
     const fuzzyResults = [];
     const queryTerm = searchTerms[0];
 
@@ -224,7 +420,20 @@ function searchEnglish(query) {
       for (const word of englishWords) {
         if (isFuzzyMatch(queryTerm, word, 2)) {
           const distance = levenshteinDistance(queryTerm, word);
-          fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+
+          let excluded = false;
+          if (parsedQuery.exclude.length > 0) {
+            for (const excludeTerm of parsedQuery.exclude) {
+              if (entry.searchableEnglish.includes(excludeTerm.toLowerCase())) {
+                excluded = true;
+                break;
+              }
+            }
+          }
+
+          if (!excluded) {
+            fuzzyResults.push({ ...entry, fuzzyDistance: distance });
+          }
           break;
         }
       }
@@ -324,25 +533,32 @@ self.onmessage = function(e) {
 
     case 'search':
       const query = data.query;
-      const inputType = detectInputType(query);
+      const parsedQuery = parseSearchQuery(query);
+      const inputType = detectInputType(parsedQuery.include.join(' '));
       let results = [];
 
-      if (inputType === 'chinese') {
+      if (parsedQuery.field === 'c') {
+        results = searchChinese(query, parsedQuery);
+      } else if (parsedQuery.field === 'p') {
+        results = searchPinyin(query, parsedQuery);
+      } else if (parsedQuery.field === 'e') {
+        results = searchEnglish(query, parsedQuery);
+      } else if (inputType === 'chinese') {
         if (query.length > 4 || /[，。！？；：、]/.test(query)) {
           results = segmentSentence(query);
         } else {
-          results = searchChinese(query);
+          results = searchChinese(query, parsedQuery);
           if (!results.length) {
             results = segmentSentence(query);
           }
         }
       } else if (inputType === 'pinyin') {
-        results = searchPinyin(query);
+        results = searchPinyin(query, parsedQuery);
         if (!results.length) {
-          results = searchEnglish(query);
+          results = searchEnglish(query, parsedQuery);
         }
       } else {
-        results = searchEnglish(query);
+        results = searchEnglish(query, parsedQuery);
       }
 
       self.postMessage({
