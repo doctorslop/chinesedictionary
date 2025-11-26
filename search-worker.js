@@ -467,10 +467,21 @@ function segmentSentence(sentence) {
     let match = null, maxLen = 0;
     for (let len = Math.min(10, cleanSentence.length - i); len >= 1; len--) {
       const slice = cleanSentence.slice(i, i + len);
-      const entry = dictionary.find(e =>
+      const entries = dictionary.filter(e =>
         e.simplified === slice || e.traditional === slice
       );
-      if (entry) { match = entry; maxLen = len; break; }
+      if (entries.length > 0) {
+        // Prefer entries with neutral tone (tone 5) for single characters,
+        // as they're typically grammatical particles (like 吗 ma5)
+        if (slice.length === 1) {
+          const neutralTone = entries.find(e => e.pinyinWithTones && /[a-z]5/.test(e.pinyinWithTones));
+          match = neutralTone || entries[0];
+        } else {
+          match = entries[0];
+        }
+        maxLen = len;
+        break;
+      }
     }
     if (match) {
       results.push({ ...match });
@@ -478,11 +489,13 @@ function segmentSentence(sentence) {
     } else {
       const char = cleanSentence[i];
       if (/[\u4e00-\u9fff\u3400-\u4dbf]/.test(char)) {
-        const singleEntry = dictionary.find(e =>
+        const entries = dictionary.filter(e =>
           e.simplified === char || e.traditional === char
         );
-        if (singleEntry) {
-          results.push({ ...singleEntry });
+        if (entries.length > 0) {
+          // Prefer neutral tone for single characters
+          const neutralTone = entries.find(e => e.pinyinWithTones && /[a-z]5/.test(e.pinyinWithTones));
+          results.push({ ...(neutralTone || entries[0]) });
         } else {
           results.push({
             simplified: char, traditional: char, pinyin: '', english: ['(not found)']
