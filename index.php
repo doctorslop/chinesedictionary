@@ -17,11 +17,17 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
 
+  <!-- Modern Professional Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
 :root {
-  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-chinese: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
   --font-size: 15px;
 
   --primary: #0066cc;
@@ -31,8 +37,8 @@
   --border: #1f2937;
   --text: #e2e8f0;
   --muted: #94a3b8;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1);
-  --radius: 6px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.15);
+  --radius: 8px;
   --focus: #3b82f6;
 }
 
@@ -270,14 +276,15 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .word-card .chinese-text {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text);
   display: flex;
   align-items: baseline;
   gap: 6px;
-  font-family: var(--font);
+  font-family: var(--font-chinese);
   margin-bottom: 8px;
+  letter-spacing: 0.02em;
 }
 .word-card .pinyin {
   font-size: 0.9rem;
@@ -346,7 +353,7 @@ body.light .word-card .english { color: var(--muted);}
   font-weight: 400;
 }
 .table-view tbody tr:hover { background: var(--card-bg);}
-.table-view .chinese-cell { font-size: 1.1rem; font-weight: 600; color: var(--text);}
+.table-view .chinese-cell { font-size: 1.2rem; font-weight: 600; color: var(--text); font-family: var(--font-chinese); letter-spacing: 0.02em;}
 .table-view .pinyin-cell { font-size: 0.9rem; color: var(--primary);}
 .table-view .english-cell { font-size: 0.9rem; color: var(--muted); line-height: 1.5;}
 body.light .table-view thead { background: transparent;}
@@ -365,7 +372,7 @@ body.light .table-view .english-cell { color: var(--muted);}
   font-weight: 500;
 }
 .list-entry:last-child { border-bottom: none; }
-.list-entry .chinese { font-weight: 700; font-size: 1.05em; margin-right: 5px; }
+.list-entry .chinese { font-weight: 600; font-size: 1.15em; margin-right: 5px; font-family: var(--font-chinese); letter-spacing: 0.02em; }
 .list-entry .pinyin { color: var(--primary); font-size: 1em; margin-right: 5px;}
 .list-entry .english { color: #b0bdd1; font-size: 1em;}
 body.light .list-entry .english { color: #1e293b;}
@@ -459,8 +466,8 @@ body.light .footer { color: #64748b;}
 <body class="dark">
 <div class="container" role="main">
   <div class="header">
-    <button id="toggleTheme" aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
-    <button id="helpBtn" aria-label="Help" title="Help & Keyboard Shortcuts">❓</button>
+    <button id="toggleTheme" aria-label="Toggle dark mode" title="Toggle dark mode"><i class="fas fa-sun"></i></button>
+    <button id="helpBtn" aria-label="Help" title="Help & Keyboard Shortcuts"><i class="fas fa-question-circle"></i></button>
     <h1 tabindex="0">Chinese Dictionary</h1>
     <p>Instant word segmentation, pinyin, translation, and more</p>
   </div>
@@ -1903,7 +1910,7 @@ toggleThemeBtn.addEventListener('click', () => {
   document.body.classList.toggle('dark');
   document.body.classList.toggle('light');
   const isDark = document.body.classList.contains('dark');
-  toggleThemeBtn.textContent = isDark ? "☀️" : "🌙";
+  toggleThemeBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   // Update URL when theme changes
   if (typeof updateURL === 'function') {
@@ -1914,11 +1921,11 @@ const savedTheme = localStorage.getItem('theme');
 if(savedTheme==='light') {
   document.body.classList.remove('dark');
   document.body.classList.add('light');
-  toggleThemeBtn.textContent='🌙';
+  toggleThemeBtn.innerHTML='<i class="fas fa-moon"></i>';
 } else {
   document.body.classList.remove('light');
   document.body.classList.add('dark');
-  toggleThemeBtn.textContent='☀️';
+  toggleThemeBtn.innerHTML='<i class="fas fa-sun"></i>';
 }
 document.addEventListener('keydown', e => {
   if(e.ctrlKey && e.key==='l'){e.preventDefault();searchInput.value='';performSearch();searchInput.focus();}
