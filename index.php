@@ -539,14 +539,8 @@ body.light .footer { color: #64748b;}
     line-height: 1.4;
   }
   #toggleTheme, #helpBtn {
-    font-size: 1.125rem;
-    padding: 10px;
-    min-width: 44px;
-    min-height: 44px;
-    border-radius: 10px;
+    display: none;
   }
-  #toggleTheme { left: 0;}
-  #helpBtn { right: 0;}
 
   .search-box { padding: 16px;}
   .search-controls { gap: 8px;}
