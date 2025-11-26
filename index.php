@@ -754,6 +754,7 @@ function searchPinyin(query, parsedQuery = null) {
 
     // Match variants against dictionary entries
     let matched = false;
+    let exactMatch = false;
 
     // Handle wildcard search
     if (parsedQuery.hasWildcard) {
@@ -762,6 +763,7 @@ function searchPinyin(query, parsedQuery = null) {
           const targetPinyin = hasTones ? entryPinyinWithTones : entryPinyinNoTones;
           if (matchesWildcard(term, targetPinyin) || matchesWildcard(term, targetPinyin.replace(/\s+/g, ''))) {
             matched = true;
+            exactMatch = true; // Treat wildcard matches as exact
             break;
           }
         }
@@ -773,20 +775,22 @@ function searchPinyin(query, parsedQuery = null) {
 
         // If query has tones, match with tones; otherwise match without tones
         if (hasTones) {
-          if (entryPinyinWithTones === term ||
-              entryPinyinWithTonesNoSpaces === termNoSpaces ||
-              entryPinyinWithTones.includes(term) ||
-              entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+          if (entryPinyinWithTones === term || entryPinyinWithTonesNoSpaces === termNoSpaces) {
             matched = true;
+            exactMatch = true;
             break;
+          } else if (entryPinyinWithTones.includes(term) || entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            exactMatch = false;
           }
         } else {
-          if (entryPinyinNoTones === term ||
-              entryPinyinNoTonesNoSpaces === termNoSpaces ||
-              entryPinyinNoTones.includes(term) ||
-              entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
+          if (entryPinyinNoTones === term || entryPinyinNoTonesNoSpaces === termNoSpaces) {
             matched = true;
+            exactMatch = true;
             break;
+          } else if (entryPinyinNoTones.includes(term) || entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            exactMatch = false;
           }
         }
       }
@@ -803,7 +807,7 @@ function searchPinyin(query, parsedQuery = null) {
       }
     }
 
-    if (matched) results.push(entry);
+    if (matched) results.push({...entry, exactMatch});
   });
 
   // If no exact matches found and query is reasonable length, try fuzzy matching
@@ -851,8 +855,17 @@ function searchPinyin(query, parsedQuery = null) {
       .map(r => { delete r.fuzzyDistance; return r; });
   }
 
-  // Sort by length and limit results
-  return results.sort((a,b) => a.simplified.length - b.simplified.length).slice(0, 100);
+  // Sort by exact match first, then by length; limit results
+  return results
+    .sort((a,b) => {
+      // Exact matches first
+      if (a.exactMatch && !b.exactMatch) return -1;
+      if (!a.exactMatch && b.exactMatch) return 1;
+      // Then by length
+      return a.simplified.length - b.simplified.length;
+    })
+    .slice(0, 100)
+    .map(r => { delete r.exactMatch; return r; });
 }
 
 // =============================================================================
@@ -979,6 +992,7 @@ const copyToClipboard = text => navigator.clipboard?.writeText(text);
 
 let searchWorker = null;
 let workerReady = false;
+let pendingURLQuery = null; // Store URL query if dictionary not yet loaded
 
 // Initialize Web Worker for background search processing
 if (useWebWorker && typeof Worker !== 'undefined') {
@@ -1114,8 +1128,15 @@ async function loadDictionaryChunked(manifest) {
       if (i === 0) {
         $('#search').disabled = false;
         $('#search').placeholder = 'Type Chinese, Pinyin, or English...';
-        $('#search').focus();
         statusEl.innerHTML = `<div class="loading">✓ Ready! Loading more entries in background... (${loadedEntries.toLocaleString()}/${totalEntries.toLocaleString()})</div>`;
+
+        // Execute pending URL query if exists
+        if (pendingURLQuery) {
+          performSearch();
+          pendingURLQuery = null;
+        } else {
+          $('#search').focus();
+        }
       } else {
         statusEl.innerHTML = `<div class="loading">Loading... ${loadedEntries.toLocaleString()}/${totalEntries.toLocaleString()} entries (${((loadedEntries/totalEntries)*100).toFixed(0)}%)</div>`;
       }
@@ -1157,7 +1178,14 @@ function loadDictionaryFull() {
           $('#search').disabled = false;
           statusEl.style.display = 'none';
           $('#search').placeholder = 'Type Chinese, Pinyin, or English...';
-          $('#search').focus();
+
+          // Execute pending URL query if exists
+          if (pendingURLQuery) {
+            performSearch();
+            pendingURLQuery = null;
+          } else {
+            $('#search').focus();
+          }
         }
       }
       processChunk();
@@ -1966,13 +1994,19 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Load query from URL
+  // Load query from URL - but wait for dictionary to load first
   if (params.q && searchInput) {
     searchInput.value = params.q;
-    performSearch();
+    if (searchInput.disabled) {
+      // Dictionary not ready yet, store for later
+      pendingURLQuery = params.q;
+    } else {
+      // Dictionary already loaded, search immediately
+      performSearch();
+    }
   }
 
-  if (searchInput) searchInput.focus();
+  if (searchInput && !searchInput.disabled) searchInput.focus();
 });
 
 // Handle browser back/forward buttons

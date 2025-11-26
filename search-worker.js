@@ -206,6 +206,7 @@ function searchPinyin(query, parsedQuery = null) {
     const entryPinyinNoTonesNoSpaces = entryPinyinNoTones.replace(/\s+/g, '');
 
     let matched = false;
+    let exactMatch = false;
 
     if (parsedQuery.hasWildcard) {
       for (const term of parsedQuery.include) {
@@ -213,6 +214,7 @@ function searchPinyin(query, parsedQuery = null) {
           const targetPinyin = hasTones ? entryPinyinWithTones : entryPinyinNoTones;
           if (matchesWildcard(term, targetPinyin) || matchesWildcard(term, targetPinyin.replace(/\s+/g, ''))) {
             matched = true;
+            exactMatch = true; // Treat wildcard matches as exact
             break;
           }
         }
@@ -222,20 +224,22 @@ function searchPinyin(query, parsedQuery = null) {
         const termNoSpaces = term.replace(/\s+/g, '');
 
         if (hasTones) {
-          if (entryPinyinWithTones === term ||
-              entryPinyinWithTonesNoSpaces === termNoSpaces ||
-              entryPinyinWithTones.includes(term) ||
-              entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+          if (entryPinyinWithTones === term || entryPinyinWithTonesNoSpaces === termNoSpaces) {
             matched = true;
+            exactMatch = true;
             break;
+          } else if (entryPinyinWithTones.includes(term) || entryPinyinWithTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            exactMatch = false;
           }
         } else {
-          if (entryPinyinNoTones === term ||
-              entryPinyinNoTonesNoSpaces === termNoSpaces ||
-              entryPinyinNoTones.includes(term) ||
-              entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
+          if (entryPinyinNoTones === term || entryPinyinNoTonesNoSpaces === termNoSpaces) {
             matched = true;
+            exactMatch = true;
             break;
+          } else if (entryPinyinNoTones.includes(term) || entryPinyinNoTonesNoSpaces.includes(termNoSpaces)) {
+            matched = true;
+            exactMatch = false;
           }
         }
       }
@@ -251,7 +255,7 @@ function searchPinyin(query, parsedQuery = null) {
       }
     }
 
-    if (matched) results.push(entry);
+    if (matched) results.push({...entry, exactMatch});
   });
 
   if (results.length === 0 && lower.length >= 3 && lower.length <= 15 && !parsedQuery.hasWildcard) {
@@ -295,7 +299,17 @@ function searchPinyin(query, parsedQuery = null) {
       .map(r => { delete r.fuzzyDistance; return r; });
   }
 
-  return results.sort((a,b) => a.simplified.length - b.simplified.length).slice(0, 100);
+  // Sort by exact match first, then by length; limit results
+  return results
+    .sort((a,b) => {
+      // Exact matches first
+      if (a.exactMatch && !b.exactMatch) return -1;
+      if (!a.exactMatch && b.exactMatch) return 1;
+      // Then by length
+      return a.simplified.length - b.simplified.length;
+    })
+    .slice(0, 100)
+    .map(r => { delete r.exactMatch; return r; });
 }
 
 function searchChinese(query, parsedQuery = null) {
