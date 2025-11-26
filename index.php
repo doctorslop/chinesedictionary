@@ -1026,21 +1026,34 @@ if (useWebWorker && typeof Worker !== 'undefined') {
  */
 function parseEntry(entry) {
   const traditional = entry.traditional || '';
-  const simplified = entry.simplified || '';
   // Always parse from traditional field which contains: "trad simp [pinyin] /english/"
   const pinyinMatch = traditional.match(/\[(.*?)\]/);
   const pinyin = pinyinMatch ? pinyinMatch[1] : '';
   const englishMatch = traditional.match(/\/(.*?)\/$/);
   const englishDef = englishMatch ? englishMatch[1] : '';
   const englishArray = englishDef ? englishDef.split(/[;\/]/).map(e => e.trim()).filter(e=>e).slice(0,5) : [];
+
+  // Extract traditional and simplified from the traditional field
+  // Format is: "traditional simplified [pinyin] /english/"
   const parts = traditional.split(' ');
   let traditionalChars = parts[0] || '';
-  if (parts.length > 1 && parts[0] === simplified)
-    traditionalChars = parts[1].replace(/\[.*?\].*/, '').trim() || parts[0];
+  let simplifiedChars = parts[0] || ''; // Default to same as traditional
+
+  if (parts.length > 1 && /[\u4e00-\u9fff\u3400-\u4dbf]/.test(parts[1])) {
+    // If second part is Chinese, it's the simplified form
+    simplifiedChars = parts[1].replace(/\[.*?\].*/, '').trim();
+    if (simplifiedChars === traditionalChars) {
+      // They're the same, so both traditional and simplified use same chars
+    } else {
+      // They're different, first is traditional, second is simplified
+      // traditionalChars already set above
+    }
+  }
+
   const pinyinSearchable = pinyin.toLowerCase().replace(/[0-9]/g,'');
   const pinyinWithTones = pinyin.toLowerCase();
   return {
-    simplified,
+    simplified: simplifiedChars,
     traditional: traditionalChars,
     pinyin,
     pinyinSearchable,
@@ -1424,10 +1437,21 @@ function segmentSentence(sentence) {
     let match = null, maxLen = 0;
     for (let len = Math.min(10, cleanSentence.length - i); len >= 1; len--) {
       const slice = cleanSentence.slice(i, i + len);
-      const entry = dictionary.find(e =>
+      const entries = dictionary.filter(e =>
         e.simplified === slice || e.traditional === slice
       );
-      if (entry) { match = entry; maxLen = len; break; }
+      if (entries.length > 0) {
+        // Prefer entries with neutral tone (tone 5) for single characters,
+        // as they're typically grammatical particles (like 吗 ma5)
+        if (slice.length === 1) {
+          const neutralTone = entries.find(e => e.pinyinWithTones && /[a-z]5/.test(e.pinyinWithTones));
+          match = neutralTone || entries[0];
+        } else {
+          match = entries[0];
+        }
+        maxLen = len;
+        break;
+      }
     }
     if (match) {
       results.push({ ...match });
@@ -1435,11 +1459,13 @@ function segmentSentence(sentence) {
     } else {
       const char = cleanSentence[i];
       if (/[\u4e00-\u9fff\u3400-\u4dbf]/.test(char)) {
-        const singleEntry = dictionary.find(e =>
+        const entries = dictionary.filter(e =>
           e.simplified === char || e.traditional === char
         );
-        if (singleEntry) {
-          results.push({ ...singleEntry });
+        if (entries.length > 0) {
+          // Prefer neutral tone for single characters
+          const neutralTone = entries.find(e => e.pinyinWithTones && /[a-z]5/.test(e.pinyinWithTones));
+          results.push({ ...(neutralTone || entries[0]) });
         } else {
           results.push({
             simplified: char, traditional: char, pinyin: '', english: ['(not found)']
