@@ -22,10 +22,10 @@
   <style>
 :root {
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-  --font-size: 15px;
+  --font-size: 16px;
 
-  --primary: #0066cc;
-  --primary-hover: #0052a3;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
   --background: #0a0e1a;
   --card-bg: #131720;
   --border: #1f2937;
@@ -34,6 +34,13 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.1);
   --radius: 6px;
   --focus: #3b82f6;
+
+  /* Pinyin tone colors */
+  --tone1: #ef4444;
+  --tone2: #f97316;
+  --tone3: #22c55e;
+  --tone4: #3b82f6;
+  --tone5: #a855f7;
 }
 
 body {
@@ -50,11 +57,18 @@ body {
 }
 body.light {
   --background: #ffffff;
-  --card-bg: #f9fafb;
-  --border: #e5e7eb;
-  --text: #111827;
-  --muted: #6b7280;
-  --shadow: 0 1px 2px rgba(0,0,0,0.05);
+  --card-bg: #f8fafc;
+  --border: #d1d5db;
+  --text: #0f172a;
+  --muted: #475569;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+  /* Adjusted tone colors for better visibility in light mode */
+  --tone1: #dc2626;
+  --tone2: #ea580c;
+  --tone3: #16a34a;
+  --tone4: #2563eb;
+  --tone5: #9333ea;
 }
 a { color: var(--primary); text-decoration: none;}
 .container {
@@ -64,43 +78,59 @@ a { color: var(--primary); text-decoration: none;}
 }
 .header {
   text-align: center;
-  margin-top: 48px;
+  margin-top: 40px;
   margin-bottom: 32px;
   position: relative;
 }
 .header h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
   font-family: var(--font);
   color: var(--text);
 }
 .header p {
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   margin-bottom: 0;
   font-weight: 400;
   letter-spacing: normal;
 }
 #toggleTheme, #helpBtn {
-  background: transparent;
-  border: none;
-  font-size: 1.1em;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  font-size: 1.25rem;
   cursor: pointer;
   position: absolute;
   top: 0;
-  color: var(--muted);
-  border-radius: 4px;
-  padding: 6px 10px;
-  transition: all 0.15s ease;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px;
+  transition: all 0.2s ease;
   font-weight: 400;
   font-family: var(--font);
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 #helpBtn { right: 0; }
 #toggleTheme { left: 0; }
-#toggleTheme:focus, #helpBtn:focus { outline: none; color: var(--text); }
-#toggleTheme:hover, #helpBtn:hover { color: var(--text); }
+#toggleTheme:focus, #helpBtn:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+#toggleTheme:hover, #helpBtn:hover {
+  background: var(--background);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+#toggleTheme:active, #helpBtn:active {
+  transform: translateY(0);
+}
 .search-box {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -123,7 +153,7 @@ a { color: var(--primary); text-decoration: none;}
 #search {
   flex: 1;
   padding: 11px 14px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--background);
@@ -145,8 +175,8 @@ body.light #search {
   box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
 }
 .btn {
-  padding: 10px 16px;
-  font-size: 0.9rem;
+  padding: 11px 16px;
+  font-size: 0.875rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -270,7 +300,7 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .word-card .chinese-text {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--text);
   display: flex;
@@ -280,7 +310,7 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
   margin-bottom: 8px;
 }
 .word-card .pinyin {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   margin-bottom: 8px;
   line-height: 1.4;
   color: var(--primary);
@@ -288,9 +318,9 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
   font-family: var(--font);
 }
 .word-card .english {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: var(--muted);
-  line-height: 1.4;
+  line-height: 1.5;
   font-family: var(--font);
 }
 .word-card .actions {
@@ -301,20 +331,37 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
   gap: 4px;
 }
 .word-card .actions button {
-  background: transparent;
-  border: none;
-  font-size: 0.95em;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  font-size: 1rem;
   cursor: pointer;
-  color: var(--muted);
-  transition: all 0.15s ease;
-  border-radius: 4px;
-  padding: 4px;
+  color: var(--text);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 6px 8px;
   font-family: var(--font);
-  font-weight: 400;
+  font-weight: 500;
+  min-width: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .word-card .actions button:hover {
-  color: var(--text);
-  background: var(--card-bg);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.word-card .actions button:active {
+  transform: translateY(0);
+}
+.copy-btn::before {
+  content: '📋';
+}
+.share-btn::before {
+  content: '🔗';
 }
 body.light .word-card {
   background: #fff;
@@ -325,30 +372,32 @@ body.light .word-card .english { color: var(--muted);}
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 .table-view thead { background: transparent;}
 .table-view th {
-  padding: 10px 12px;
+  padding: 12px;
   text-align: left;
   font-weight: 600;
   color: var(--muted);
-  border-bottom: 1px solid var(--border);
-  font-size: 0.85rem;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.75rem;
   font-family: var(--font);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .table-view td {
-  padding: 12px;
+  padding: 14px 12px;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   font-family: var(--font);
   font-weight: 400;
 }
 .table-view tbody tr:hover { background: var(--card-bg);}
-.table-view .chinese-cell { font-size: 1.1rem; font-weight: 600; color: var(--text);}
-.table-view .pinyin-cell { font-size: 0.9rem; color: var(--primary);}
-.table-view .english-cell { font-size: 0.9rem; color: var(--muted); line-height: 1.5;}
+.table-view .chinese-cell { font-size: 1.125rem; font-weight: 600; color: var(--text);}
+.table-view .pinyin-cell { font-size: 0.875rem; color: var(--primary);}
+.table-view .english-cell { font-size: 0.875rem; color: var(--muted); line-height: 1.5;}
 body.light .table-view thead { background: transparent;}
 body.light .table-view th { color: var(--muted); border-color: var(--border);}
 body.light .table-view td { border-color: var(--border);}
@@ -357,23 +406,52 @@ body.light .table-view .chinese-cell { color: var(--text);}
 body.light .table-view .english-cell { color: var(--muted);}
 .list-view { padding: 6px 0;}
 .list-entry {
-  padding: 6px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--border);
   font-size: 1em;
-  line-height: 1.48;
+  line-height: 1.5;
   font-family: var(--font);
   font-weight: 500;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
 .list-entry:last-child { border-bottom: none; }
-.list-entry .chinese { font-weight: 700; font-size: 1.05em; margin-right: 5px; }
-.list-entry .pinyin { color: var(--primary); font-size: 1em; margin-right: 5px;}
-.list-entry .english { color: #b0bdd1; font-size: 1em;}
-body.light .list-entry .english { color: #1e293b;}
-.tone1 { color: #ef4444;}
-.tone2 { color: #f59e42;}
-.tone3 { color: #22c55e;}
-.tone4 { color: #3b82f6;}
-.tone5 { color: #a21caf;}
+.list-entry .chinese { font-weight: 700; font-size: 1.05em;}
+.list-entry .pinyin { color: var(--primary); font-size: 1em;}
+.list-entry .english { color: var(--muted); font-size: 1em; flex: 1 1 auto;}
+.list-entry button, .table-view button {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  min-width: 34px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+.list-entry button:hover, .table-view button:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.list-entry button:active, .table-view button:active {
+  transform: translateY(0);
+}
+.tone1 { color: var(--tone1);}
+.tone2 { color: var(--tone2);}
+.tone3 { color: var(--tone3);}
+.tone4 { color: var(--tone4);}
+.tone5 { color: var(--tone5);}
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
 .loading { animation: pulse 1.4s ease-in-out infinite; }
 .empty-state {
@@ -445,14 +523,67 @@ body.light #helpModal { background: #fff; color: #1e293b;}
 .footer a { color: var(--primary); text-decoration: underline; }
 body.light .footer { color: #64748b;}
 @media (max-width: 700px) {
-  .container { padding: 0 3px 14px;}
-  .header h1 { font-size: 1.15em;}
-  .cards-view { grid-template-columns: 1fr; }
-  #toggleTheme { top: 2px; font-size: 1em;}
-  .search-box, .results-container { padding: 4px; }
-  .table-view th, .table-view td { padding: 4px;}
-  .results-header { font-size: 0.91em; flex-direction: column; align-items: flex-start;}
-  .view-options { margin-top: 3px;}
+  .container { padding: 0 16px 24px;}
+  .header {
+    margin-top: 16px;
+    margin-bottom: 24px;
+    padding: 0 8px;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .header p {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+  #toggleTheme, #helpBtn {
+    font-size: 1.125rem;
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 10px;
+  }
+  #toggleTheme { left: 0;}
+  #helpBtn { right: 0;}
+
+  .search-box { padding: 16px;}
+  .search-controls { gap: 8px;}
+  #search { font-size: 1rem; padding: 12px 14px;}
+  .btn { padding: 12px 16px; font-size: 0.875rem;}
+
+  .results-container { padding: 16px;}
+  .results-header {
+    font-size: 0.875rem;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .results-count { flex: 1 1 auto;}
+  .view-options { margin-top: 0; gap: 6px;}
+  .view-btn { padding: 8px 12px; font-size: 0.8125rem;}
+
+  .cards-view { grid-template-columns: 1fr; gap: 12px;}
+  .word-card { padding: 14px;}
+  .word-card .chinese-text { font-size: 1.375rem;}
+  .word-card .pinyin { font-size: 0.875rem;}
+  .word-card .english { font-size: 0.8125rem;}
+
+  .table-view { font-size: 0.8125rem;}
+  .table-view th { padding: 10px 8px; font-size: 0.6875rem;}
+  .table-view td { padding: 12px 8px; font-size: 0.8125rem;}
+  .table-view .chinese-cell { font-size: 1.0625rem;}
+  .table-view .pinyin-cell { font-size: 0.8125rem;}
+  .table-view .english-cell { font-size: 0.8125rem;}
+
+  .list-entry { padding: 10px 0;}
+  .list-entry .chinese { font-size: 1.0625rem;}
+  .list-entry .pinyin { font-size: 0.9375rem;}
+  .list-entry .english { font-size: 0.9375rem;}
+
+  .footer { font-size: 0.8125rem; margin-top: 16px;}
 }
   </style>
 </head>
@@ -468,8 +599,6 @@ body.light .footer { color: #64748b;}
     <form class="search-controls" autocomplete="off" onsubmit="return false;">
       <input type="text" id="search" aria-label="Search field" placeholder="Type Chinese, Pinyin, or English..." disabled autocomplete="off">
       <button type="button" class="btn btn-primary" id="clearBtn" title="Clear search">Clear</button>
-      <button type="button" class="btn btn-secondary" id="pasteBtn" title="Paste">Paste</button>
-      <button type="button" class="btn btn-secondary" id="speakQueryBtn" title="Pronounce search query" style="display:none;">🔊</button>
       <button type="button" class="btn btn-secondary" id="voiceBtn" title="Voice input (Chinese or English)" style="display:none;">🎤</button>
     </form>
     <div id="status" class="status loading" aria-live="polite">Loading dictionary database...</div>
@@ -492,7 +621,7 @@ body.light .footer { color: #64748b;}
     </div>
   </div>
   <div class="footer">
-    <span>v 0.2.2</span>
+    <span>v 0.2.3</span>
   </div>
 </div>
 
@@ -530,7 +659,7 @@ body.light .footer { color: #64748b;}
       <li>🔗 Share links</li>
       <li>📊 3 view modes: Table, Cards, List</li>
       <li>🌓 Dark/Light theme</li>
-      <li>🔊 Text-to-speech pronunciation</li>
+      <li>🎤 Voice input (when available)</li>
     </ul>
 
     <h3 style="margin-top: 15px; font-size: 1.1em;">About</h3>
@@ -1526,9 +1655,8 @@ function renderCards(segments, query='') {
     return `
       <div class="word-card" tabindex="0" aria-label="${escapeHTML(entry.simplified)}" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">
         <div class="actions">
-          <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
-          <button class="copy-btn" title="Copy" aria-label="Copy" data-copy="${escapeHTML(defText)}">📋</button>
-          <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+          <button class="copy-btn" title="Copy definition" aria-label="Copy definition" data-copy="${escapeHTML(defText)}"></button>
+          <button class="share-btn" title="Share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}"></button>
         </div>
         <div class="chinese-text">
           <span>${highlight(entry.simplified,query)}</span>
@@ -1556,8 +1684,7 @@ function renderTable(segments, query='') {
           <td class="pinyin-cell">${colorizePinyin(entry.pinyin,query)}</td>
           <td class="english-cell">${highlight(entry.english.join('; '),query)}</td>
           <td>
-            <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
-            <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+            <button class="share-btn" title="Share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}"></button>
           </td>
         </tr>
       `;
@@ -1578,8 +1705,7 @@ function renderList(segments, query='') {
       <span class="chinese">${highlight(entry.simplified,query)}</span>
       <span class="pinyin">${colorizePinyin(entry.pinyin,query)}</span>
       <span class="english">${highlight(entry.english.join('; '),query)}</span>
-      <button class="speak-btn" title="Pronounce" aria-label="Speak pronunciation" data-text="${escapeHTML(entry.simplified)}">🔊</button>
-      <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+      <button class="share-btn" title="Share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}"></button>
     </div>
   `;
   }).join('')}</div>`;
@@ -1727,115 +1853,13 @@ function performSearchMainThread(query) {
 // EVENT HANDLERS
 // =============================================================================
 
-// =============================================================================
-// TEXT-TO-SPEECH FUNCTIONALITY
-// =============================================================================
-
-// Cache for speech synthesis voices
-let cachedVoices = [];
-let voicesLoaded = false;
-
-/**
- * Load and cache available speech synthesis voices
- */
-function loadVoices() {
-  return new Promise((resolve) => {
-    cachedVoices = window.speechSynthesis.getVoices();
-
-    if (cachedVoices.length > 0) {
-      voicesLoaded = true;
-      console.log('✓ Loaded', cachedVoices.length, 'speech voices');
-      resolve(cachedVoices);
-    } else {
-      // Voices not loaded yet, wait for the event
-      window.speechSynthesis.onvoiceschanged = () => {
-        cachedVoices = window.speechSynthesis.getVoices();
-        voicesLoaded = true;
-        console.log('✓ Loaded', cachedVoices.length, 'speech voices');
-        resolve(cachedVoices);
-      };
-    }
-  });
-}
-
-// Initialize voice loading
-if ('speechSynthesis' in window) {
-  loadVoices();
-}
-
-/**
- * Speak Chinese text using Web Speech API
- * @param {string} text - Chinese text to pronounce
- */
-async function speakChinese(text) {
-  if (!text) return;
-
-  // Check if speech synthesis is available
-  if (!('speechSynthesis' in window)) {
-    alert('Sorry, your browser does not support text-to-speech.');
-    return;
-  }
-
-  // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
-
-  // Ensure voices are loaded
-  if (!voicesLoaded) {
-    try {
-      await loadVoices();
-    } catch (error) {
-      console.error('Failed to load voices:', error);
-    }
-  }
-
-  const utterance = new SpeechSynthesisUtterance(text);
-
-  // Set language to Chinese (Mandarin)
-  utterance.lang = 'zh-CN';
-
-  // Set voice properties
-  utterance.rate = 0.9; // Slightly slower for clarity
-  utterance.pitch = 1.0;
-  utterance.volume = 1.0;
-
-  // Try to find a Chinese voice
-  const chineseVoice = cachedVoices.find(voice =>
-    voice.lang.startsWith('zh') || voice.lang.startsWith('cmn')
-  );
-
-  if (chineseVoice) {
-    utterance.voice = chineseVoice;
-    console.log('Using voice:', chineseVoice.name);
-  } else {
-    console.warn('No Chinese voice found, using default voice');
-  }
-
-  // Error handling
-  utterance.onerror = function(event) {
-    console.error('Speech synthesis error:', event);
-    alert('Speech synthesis failed. Please try again.');
-  };
-
-  // Success feedback
-  utterance.onstart = function() {
-    console.log('Speaking:', text);
-  };
-
-  window.speechSynthesis.speak(utterance);
-}
-
 /**
  * Event delegation for dynamically created buttons
  * Using data attributes instead of inline onclick handlers (XSS safe)
  */
 document.addEventListener('click', async function(e) {
-  // Handle speak buttons
-  if (e.target.classList.contains('speak-btn')) {
-    const text = e.target.getAttribute('data-text');
-    if (text) await speakChinese(text);
-  }
   // Handle copy buttons
-  else if (e.target.classList.contains('copy-btn')) {
+  if (e.target.classList.contains('copy-btn')) {
     const text = e.target.getAttribute('data-copy');
     if (text) copyToClipboard(text);
   }
@@ -1854,26 +1878,6 @@ $('#clearBtn').addEventListener('click', () => {
   searchInput.value = '';
   performSearch();
   searchInput.focus();
-});
-$('#pasteBtn').addEventListener('click', async () => {
-  if(navigator.clipboard){
-    const text = await navigator.clipboard.readText();
-    searchInput.value = text;
-    performSearch();
-  }
-  searchInput.focus();
-});
-
-// Speak query button - shows when there's Chinese text in search
-const speakQueryBtn = $('#speakQueryBtn');
-searchInput.addEventListener('input', () => {
-  const hasChinese = /[\u4e00-\u9fff\u3400-\u4dbf]/.test(searchInput.value);
-  speakQueryBtn.style.display = hasChinese ? 'inline-block' : 'none';
-});
-
-speakQueryBtn.addEventListener('click', async () => {
-  const query = searchInput.value.trim();
-  if (query) await speakChinese(query);
 });
 
 // =============================================================================
