@@ -78,15 +78,15 @@ a { color: var(--primary); text-decoration: none;}
 }
 .header {
   text-align: center;
-  margin-top: 48px;
+  margin-top: 40px;
   margin-bottom: 32px;
   position: relative;
 }
 .header h1 {
   font-size: 1.75rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  letter-spacing: -0.025em;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
   font-family: var(--font);
   color: var(--text);
 }
@@ -98,23 +98,39 @@ a { color: var(--primary); text-decoration: none;}
   letter-spacing: normal;
 }
 #toggleTheme, #helpBtn {
-  background: transparent;
-  border: none;
-  font-size: 1.1em;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  font-size: 1.25rem;
   cursor: pointer;
   position: absolute;
   top: 0;
-  color: var(--muted);
-  border-radius: 4px;
-  padding: 6px 10px;
-  transition: all 0.15s ease;
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px;
+  transition: all 0.2s ease;
   font-weight: 400;
   font-family: var(--font);
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 #helpBtn { right: 0; }
 #toggleTheme { left: 0; }
-#toggleTheme:focus, #helpBtn:focus { outline: none; color: var(--text); }
-#toggleTheme:hover, #helpBtn:hover { color: var(--text); }
+#toggleTheme:focus, #helpBtn:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+#toggleTheme:hover, #helpBtn:hover {
+  background: var(--background);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+#toggleTheme:active, #helpBtn:active {
+  transform: translateY(0);
+}
 .search-box {
   background: var(--card-bg);
   border-radius: var(--radius);
@@ -315,28 +331,37 @@ body.light .error { background: #ffeaea; color: #b91c1c; }
   gap: 4px;
 }
 .word-card .actions button {
-  background: transparent;
-  border: none;
-  font-size: 1.125rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  font-size: 1rem;
   cursor: pointer;
-  color: var(--muted);
-  transition: all 0.15s ease;
-  border-radius: 4px;
-  padding: 6px;
+  color: var(--text);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 6px 8px;
   font-family: var(--font);
-  font-weight: 400;
-  min-width: 32px;
-  min-height: 32px;
+  font-weight: 500;
+  min-width: 34px;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 .word-card .actions button:hover {
-  color: var(--text);
-  background: var(--card-bg);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .word-card .actions button:active {
-  transform: scale(0.95);
+  transform: translateY(0);
+}
+.copy-btn::before {
+  content: '📋';
+}
+.share-btn::before {
+  content: '🔗';
 }
 body.light .word-card {
   background: #fff;
@@ -397,26 +422,30 @@ body.light .table-view .english-cell { color: var(--muted);}
 .list-entry .pinyin { color: var(--primary); font-size: 1em;}
 .list-entry .english { color: var(--muted); font-size: 1em; flex: 1 1 auto;}
 .list-entry button, .table-view button {
-  background: transparent;
-  border: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   cursor: pointer;
-  color: var(--muted);
-  transition: all 0.15s ease;
-  border-radius: 4px;
-  padding: 4px 6px;
-  font-size: 1rem;
-  min-width: 32px;
-  min-height: 32px;
+  color: var(--text);
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.875rem;
+  min-width: 34px;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-weight: 500;
 }
 .list-entry button:hover, .table-view button:hover {
-  color: var(--text);
-  background: var(--card-bg);
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .list-entry button:active, .table-view button:active {
-  transform: scale(0.95);
+  transform: translateY(0);
 }
 .tone1 { color: var(--tone1);}
 .tone2 { color: var(--tone2);}
@@ -494,13 +523,30 @@ body.light #helpModal { background: #fff; color: #1e293b;}
 .footer a { color: var(--primary); text-decoration: underline; }
 body.light .footer { color: #64748b;}
 @media (max-width: 700px) {
-  .container { padding: 0 12px 20px;}
-  .header { margin-top: 24px; margin-bottom: 24px;}
-  .header h1 { font-size: 1.5rem;}
-  .header p { font-size: 0.8125rem;}
-  #toggleTheme, #helpBtn { font-size: 1.25rem; padding: 8px;}
-  #toggleTheme { left: -4px;}
-  #helpBtn { right: -4px;}
+  .container { padding: 0 16px 24px;}
+  .header {
+    margin-top: 16px;
+    margin-bottom: 24px;
+    padding: 0 8px;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .header p {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+  #toggleTheme, #helpBtn {
+    font-size: 1.125rem;
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 10px;
+  }
+  #toggleTheme { left: 0;}
+  #helpBtn { right: 0;}
 
   .search-box { padding: 16px;}
   .search-controls { gap: 8px;}
@@ -1609,8 +1655,8 @@ function renderCards(segments, query='') {
     return `
       <div class="word-card" tabindex="0" aria-label="${escapeHTML(entry.simplified)}" data-simp="${escapeHTML(entry.simplified)}" data-trad="${escapeHTML(entry.traditional)}">
         <div class="actions">
-          <button class="copy-btn" title="Copy" aria-label="Copy" data-copy="${escapeHTML(defText)}">📋</button>
-          <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+          <button class="copy-btn" title="Copy definition" aria-label="Copy definition" data-copy="${escapeHTML(defText)}"></button>
+          <button class="share-btn" title="Share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}"></button>
         </div>
         <div class="chinese-text">
           <span>${highlight(entry.simplified,query)}</span>
@@ -1638,7 +1684,7 @@ function renderTable(segments, query='') {
           <td class="pinyin-cell">${colorizePinyin(entry.pinyin,query)}</td>
           <td class="english-cell">${highlight(entry.english.join('; '),query)}</td>
           <td>
-            <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+            <button class="share-btn" title="Share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}"></button>
           </td>
         </tr>
       `;
@@ -1659,7 +1705,7 @@ function renderList(segments, query='') {
       <span class="chinese">${highlight(entry.simplified,query)}</span>
       <span class="pinyin">${colorizePinyin(entry.pinyin,query)}</span>
       <span class="english">${highlight(entry.english.join('; '),query)}</span>
-      <button class="share-btn" title="Copy share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}">🔗</button>
+      <button class="share-btn" title="Share link" aria-label="Share link" data-share="${escapeHTML(shareUrl)}"></button>
     </div>
   `;
   }).join('')}</div>`;
