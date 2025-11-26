@@ -532,7 +532,12 @@ function detectInputType(text) {
   const commonEnglish = ['a','i','me','you','he','she','it','we','they','can','will','would','should'];
   if (pinyinRegex.test(cleanText) && !commonEnglish.includes(cleanText)) {
     if (/[0-5]/.test(cleanText)) return 'pinyin';
-    const syllables = cleanText.split(/\s+/);
+    let syllables = cleanText.split(/\s+/);
+    // If no spaces, try to split into syllables
+    if (syllables.length === 1 && !cleanText.includes(' ')) {
+      const split = splitPinyinIntoSyllables(cleanText);
+      if (split) syllables = split.split(/\s+/);
+    }
     const pinyinPatterns = /^(zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?[aeiouü]+n?g?$/;
     const likelyPinyin = syllables.every(syl => pinyinPatterns.test(syl));
     return likelyPinyin ? 'pinyin' : 'english';
